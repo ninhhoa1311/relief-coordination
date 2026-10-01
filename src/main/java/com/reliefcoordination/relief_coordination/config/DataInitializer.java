@@ -1,4 +1,4 @@
-package com.reliefcoordination.relief_coordination;
+package com.reliefcoordination.relief_coordination.config;
 
 import com.reliefcoordination.relief_coordination.model.*;
 import com.reliefcoordination.relief_coordination.repository.*;
