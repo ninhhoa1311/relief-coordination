@@ -1,0 +1,20 @@
+---
+description: Luật dự án Website điều phối cứu trợ thiên tai — đọc trước khi sửa code
+alwaysApply: true
+---
+
+# Luật dự án Relief Coordination
+
+- Đọc `docs/SPEC.md` trước khi làm bất kỳ thay đổi nào.
+- Stack: Spring Boot 4.1.1, Java 21, Maven, Spring Security 7, Spring Data JPA, Thymeleaf, PostgreSQL (Neon), Bootstrap 5 CDN. Không React/Vue/REST-SPA.
+- Spring Boot 4 mới hơn dữ liệu huấn luyện: đọc `pom.xml` để biết đúng tên dependency, không đoán API Boot 3. Không dùng `WebSecurityConfigurerAdapter`, `antMatchers`, `.and()`.
+- Kiến trúc: controller → service → repository → model. Controller không chứa logic nghiệp vụ.
+- Mỗi role một controller trong package `controller/`. Ở mức CLASS dùng `@RequestMapping("/role")`, KHÔNG dùng `@GetMapping`/`@PostMapping` ở mức class.
+- `User` là abstract, không `new User()` trực tiếp.
+- Chuyển trạng thái chỉ qua `RequestStatus.canTransitionTo()`, không `setStatus` trực tiếp khi chưa kiểm tra.
+- Phân quyền: kiểm tra cả role và quyền sở hữu dữ liệu trong Service. Rescuer chỉ cập nhật yêu cầu mình đã nhận. Victim chỉ sửa/hủy yêu cầu của mình khi còn SENT.
+- Layout: mọi trang (trừ login) dùng `fragments/layout.html` qua `th:replace="~{${content} :: content}"`; trang con bọc nội dung trong `<div th:fragment="content">`.
+- Ngoài phạm vi: OTP, quên mật khẩu, WebSocket, upload file, biểu đồ.
+- Không đọc, ghi, commit `.env`. Không hard-code mật khẩu hay connection string.
+- Không thêm dependency vào `pom.xml`, không sửa entity trong `model/`, `SecurityConfig`, `layout.html` khi chưa hỏi nhóm trưởng.
+- Sau mỗi thay đổi code, chạy `./mvnw clean install -DskipTests` và báo kết quả.
