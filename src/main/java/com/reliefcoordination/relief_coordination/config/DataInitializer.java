@@ -23,7 +23,7 @@ public class DataInitializer implements CommandLineRunner {
                             RescuerRepository rescuerRepository,
                             AdminRepository adminRepository,
                             ReliefRequestRepository reliefRequestRepository,
-                            PasswordEncoder passwordEncoder) {
+                            PasswordEncoder passwordEncoder) {  
         this.userRepository = userRepository;
         this.victimRepository = victimRepository;
         this.rescuerRepository = rescuerRepository;
@@ -93,21 +93,14 @@ public class DataInitializer implements CommandLineRunner {
             request.setUrgencyLevel(urgencyLevels[i % urgencyLevels.length]);
             request.setDescription("Yeu cau cuu tro mau so " + (i + 1));
 
-            if (i % 5 == 0) {
-                request.setStatus(RequestStatus.SENT);
-            } else if (i % 5 == 1) {
-                request.setStatus(RequestStatus.ACCEPTED);
-                request.setRescuer(i % 2 == 0 ? rescuer1 : rescuer2);
-            } else if (i % 5 == 2) {
-                request.setStatus(RequestStatus.PROCESSING);
-                request.setRescuer(i % 2 == 0 ? rescuer1 : rescuer2);
-            } else if (i % 5 == 3) {
-                request.setStatus(RequestStatus.COMPLETED);
-                request.setRescuer(i % 2 == 0 ? rescuer1 : rescuer2);
-            } else {
-                request.setStatus(RequestStatus.CONFIRMED);
-                request.setRescuer(i % 2 == 0 ? rescuer1 : rescuer2);
+            int step = i % 5; // 0=SENT, 1=ACCEPTED, 2=PROCESSING, 3=COMPLETED, 4=CONFIRMED
+            if (step >= 1) {
+                request.setRescuer(i % 2 == 0 ? rescuer1 : rescuer2); // gán rescuer TRƯỚC khi ACCEPTED
+                request.changeStatus(RequestStatus.ACCEPTED);
             }
+            if (step >= 2) request.changeStatus(RequestStatus.PROCESSING);
+            if (step >= 3) request.changeStatus(RequestStatus.COMPLETED);
+            if (step >= 4) request.changeStatus(RequestStatus.CONFIRMED);
 
             reliefRequestRepository.save(request);
         }

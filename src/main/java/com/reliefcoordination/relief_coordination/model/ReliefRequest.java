@@ -1,6 +1,7 @@
 package com.reliefcoordination.relief_coordination.model;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
@@ -45,6 +46,7 @@ public class ReliefRequest {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Setter(AccessLevel.NONE)
     private RequestStatus status = RequestStatus.SENT;
 
     @Column(nullable = false, updatable = false)
@@ -54,6 +56,14 @@ public class ReliefRequest {
 
     @Version
     private Long version;
+
+    public void changeStatus(RequestStatus next) {
+        if (!this.status.canTransitionTo(next)) {
+            throw new IllegalStateException(
+                    "Không thể chuyển từ trạng thái " + this.status + " sang " + next);
+        }
+        this.status = next;
+    }
 
     @PreUpdate
     public void beforeUpdate() {
