@@ -323,3 +323,139 @@ Thông qua đề tài, nhóm có thể áp dụng các kiến thức về lập 
 - Chống nhận trùng yêu cầu: dùng `@Version` (optimistic locking) trên `ReliefRequest`.
 - Thống kê Admin: chỉ cần thẻ số (card), không vẽ biểu đồ.
 - `RescuerController` sẽ tách thành `RescuerRequestController` (danh sách, lọc, chi tiết, nhận) và `RescuerTaskController` (nhiệm vụ của tôi, cập nhật trạng thái).
+
+
+## Sơ đồ màn hình — Relief Coordination
+
+### 1. Trang Landing
+```
+┌─────────────────────────────────────┐
+│        RELIEF COORDINATION            │
+│                                       │
+│         Bạn cần hỗ trợ gì?           │
+│                                       │
+│   [ 🆘 Tôi cần cứu trợ ]              │
+│   [ 🚑 Tôi là người cứu trợ ]         │
+│                                       │
+│        Đã có tài khoản? Đăng nhập    │
+└─────────────────────────────────────┘
+```
+
+### 2. Trang Đăng ký
+```
+┌─────────────────────────────────────┐
+│  Đăng ký — [Victim/Rescuer]          │
+├─────────────────────────────────────┤
+│  Họ tên     [________________]       │
+│  Email      [________________]       │
+│  SĐT        [________________]       │
+│  Mật khẩu   [________________]       │
+│  Nhập lại   [________________]       │
+│                                       │
+│         [   Đăng ký   ]              │
+│    Đã có tài khoản? Đăng nhập        │
+└─────────────────────────────────────┘
+```
+
+### 3. Trang Login
+```
+┌─────────────────────────────────┐
+│        RELIEF COORDINATION        │
+│   Email    [______________]      │
+│   Password [______________]      │
+│         [  Đăng nhập  ]          │
+│   Chưa có tài khoản? Đăng ký     │
+└─────────────────────────────────┘
+```
+
+### 4. Victim — Dashboard
+```
+┌───────────────────────────────────────────────────┐
+│ RELIEF  | 🆘 Xin chào, [Tên]          [Đăng xuất]  │
+├───────────────────────────────────────────────────┤
+│  [ + Tạo yêu cầu mới ]                             │
+│                                                     │
+│  Yêu cầu của tôi:                                  │
+│  ┌─────────────────────────────────────────────┐  │
+│  │ #12  Thực phẩm | Khẩn cấp | SENT      [Xem] │  │
+│  │ #08  Y tế      | Cao      | ACCEPTED  [Xem] │  │
+│  │ #03  Nơi ở     | TB       | COMPLETED [Xác  │  │
+│  │                                        nhận] │  │
+│  └─────────────────────────────────────────────┘  │
+└───────────────────────────────────────────────────┘
+```
+
+### 5. Victim — Tạo yêu cầu mới
+```
+┌───────────────────────────────────────┐
+│  Tạo yêu cầu cứu trợ                  │
+├───────────────────────────────────────┤
+│  Địa điểm      [______________]       │
+│  [📍 Lấy vị trí GPS hiện tại]         │
+│  Loại nhu cầu  [▼ Thực phẩm      ]    │
+│  Số người cần  [___]                  │
+│  Mức độ khẩn   [▼ Trung bình     ]    │
+│  Mô tả         [______________]       │
+│       [ Hủy ]      [ Gửi yêu cầu ]    │
+└───────────────────────────────────────┘
+```
+
+### 6. Victim — Chi tiết yêu cầu
+```
+┌───────────────────────────────────────┐
+│  Yêu cầu #12          Trạng thái: SENT│
+├───────────────────────────────────────┤
+│  Địa điểm:     123 Lê Lợi, Q1          │
+│  Loại nhu cầu: Thực phẩm               │
+│  Khẩn cấp:     Cao                     │
+│  Rescuer:      (chưa có)               │
+│   [ Sửa ]   [ Hủy yêu cầu ]            │
+└───────────────────────────────────────┘
+```
+
+### 7. Rescuer — Dashboard (tìm/lọc yêu cầu)
+```
+┌─────────────────────────────────────────────────────┐
+│ RELIEF  | 🚑 [Tên]                    [Đăng xuất]    │
+├─────────────────────────────────────────────────────┤
+│  Tìm: [____________]  Lọc: [▼ Loại] [▼ Khẩn cấp]    │
+│  ┌───────────────────────────────────────────────┐  │
+│  │ #12 Thực phẩm | Cao     | SENT     [Nhận việc]│  │
+│  │ #15 Y tế      | Khẩn cấp| SENT     [Nhận việc]│  │
+│  │ #08 Y tế      | Cao     | ACCEPTED [Xem/Cập   │  │
+│  │                                     nhật]      │  │
+│  └───────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────┘
+```
+
+### 8. Rescuer — Chi tiết yêu cầu đã nhận
+```
+┌───────────────────────────────────────┐
+│  Yêu cầu #08       Trạng thái: ACCEPTED│
+├───────────────────────────────────────┤
+│  Victim:       Nguyễn Văn A            │
+│  Địa điểm:     ...  [Xem bản đồ]       │
+│  Cập nhật trạng thái:                 │
+│  [▼ PROCESSING             ]          │
+│       [ Lưu ]  [ Đánh dấu hoàn thành ] │
+└───────────────────────────────────────┘
+```
+
+### 9. Admin — Dashboard
+```
+┌─────────────────────────────────────────────────────┐
+│ RELIEF ADMIN                          [Đăng xuất]    │
+├─────────────────────────────────────────────────────┤
+│  Thống kê:                                           │
+│  Tổng yêu cầu: 23 | Đã xong: 10 | Người đã giúp: 40  │
+│  Quản lý tài khoản:                                  │
+│  ┌───────────────────────────────────────────────┐  │
+│  │ Nguyễn A  | Rescuer | Active   [Khóa]         │  │
+│  │ Trần B    | Victim  | Active   [Khóa]         │  │
+│  │ Lê C      | Rescuer | Locked   [Mở khóa]      │  │
+│  └───────────────────────────────────────────────┘  │
+└───────────────────────────────────────────────────┘
+```
+
+### Luồng tổng
+Landing → Đăng ký → Login → Dashboard theo role → (Victim) tạo yêu cầu → (Rescuer) nhận/xử lý → Victim xác nhận → Admin theo dõi thống kê + quản lý tài khoản xuyên suốt.
