@@ -20,22 +20,41 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
 
-        <a class="navbar-brand" href="/home">
+        <a class="navbar-brand" th:href="@{/home}">
             Cứu trợ thiên tai
         </a>
 
-        <div class="d-flex align-items-center">
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Mở menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-            <span class="navbar-text text-light me-3"
-                  sec:authentication="name">
-            </span>
+        <div class="collapse navbar-collapse" id="mainNav">
 
-            <form th:action="@{/logout}" method="post">
-                <button type="submit"
-                        class="btn btn-outline-light btn-sm">
-                    Đăng xuất
-                </button>
-            </form>
+            <!-- Menu theo role: mỗi role sửa file nav-<role>.html của mình, KHÔNG sửa ở đây -->
+            <th:block sec:authorize="hasRole('VICTIM')">
+                <ul th:replace="~{fragments/nav-victim :: nav}"></ul>
+            </th:block>
+            <th:block sec:authorize="hasRole('RESCUER')">
+                <ul th:replace="~{fragments/nav-rescuer :: nav}"></ul>
+            </th:block>
+            <th:block sec:authorize="hasRole('ADMIN')">
+                <ul th:replace="~{fragments/nav-admin :: nav}"></ul>
+            </th:block>
+
+            <div class="d-flex align-items-center">
+                <span class="navbar-text text-light me-3"
+                      sec:authentication="name">
+                </span>
+
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit"
+                            class="btn btn-outline-light btn-sm">
+                        Đăng xuất
+                    </button>
+                </form>
+            </div>
 
         </div>
     </div>
