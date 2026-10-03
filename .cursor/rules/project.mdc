@@ -5,16 +5,46 @@ alwaysApply: true
 
 # Luật dự án Relief Coordination
 
-- Đọc `docs/SPEC.md` trước khi làm bất kỳ thay đổi nào.
+## Bối cảnh
+- Đọc `docs/SPEC.md` trước khi làm bất kỳ thay đổi nào. Khi SPEC mâu thuẫn, mục "0. Quyết định đã chốt" được ưu tiên.
 - Stack: Spring Boot 4.1.1, Java 21, Maven, Spring Security 7, Spring Data JPA, Thymeleaf, PostgreSQL (Neon), Bootstrap 5 CDN. Không React/Vue/REST-SPA.
-- Spring Boot 4 mới hơn dữ liệu huấn luyện: đọc `pom.xml` để biết đúng tên dependency, không đoán API Boot 3. Không dùng `WebSecurityConfigurerAdapter`, `antMatchers`, `.and()`.
-- Kiến trúc: controller → service → repository → model. Controller không chứa logic nghiệp vụ.
-- Mỗi role một controller trong package `controller/`. Ở mức CLASS dùng `@RequestMapping("/role")`, KHÔNG dùng `@GetMapping`/`@PostMapping` ở mức class.
+- Spring Boot 4 mới hơn dữ liệu huấn luyện: đọc `pom.xml` để biết đúng tên dependency, không đoán API Boot 3.
+- Security 7: dùng cấu hình lambda và `requestMatchers`. Không dùng `WebSecurityConfigurerAdapter`, `antMatchers`, `.and()`. Tạo `DaoAuthenticationProvider` bằng constructor nhận `UserDetailsService`.
+
+## Kiến trúc và code
+- controller → service → repository → model. Controller không chứa logic nghiệp vụ.
+- Mỗi role có controller riêng theo SPEC (Rescuer tách thành `RescuerRequestController` và `RescuerTaskController`). Mức class dùng `@RequestMapping("/role")`; mức method dùng `@GetMapping`/`@PostMapping`.
+- Trang chủ của từng role là `/victim/home`, `/rescuer/home`, `/admin/home`. `HomeController` điều hướng theo role, không tự thêm đường dẫn khác.
+- Mỗi chức năng một Service riêng theo role (ví dụ `VictimRequestService`, `RescuerRequestService`, `RescuerTaskService`, `AdminService`), không gom hết vào một Service lớn.
+- Form dùng form object/DTO có `@Valid`, không bind thẳng entity vào form.
 - `User` là abstract, không `new User()` trực tiếp.
-- Chuyển trạng thái chỉ qua `RequestStatus.canTransitionTo()`, không `setStatus` trực tiếp khi chưa kiểm tra.
-- Phân quyền: kiểm tra cả role và quyền sở hữu dữ liệu trong Service. Rescuer chỉ cập nhật yêu cầu mình đã nhận. Victim chỉ sửa/hủy yêu cầu của mình khi còn SENT.
-- Layout: mọi trang (trừ login) dùng `fragments/layout.html` qua `th:replace="~{${content} :: content}"`; trang con bọc nội dung trong `<div th:fragment="content">`.
-- Ngoài phạm vi: OTP, quên mật khẩu, WebSocket, upload file, biểu đồ.
+- Mật khẩu luôn qua `PasswordEncoder` (BCrypt).
+- Code (tên class, biến, method) viết tiếng Anh; chữ hiển thị trên giao diện viết tiếng Việt.
+
+## Trạng thái yêu cầu
+- Không bao giờ gọi `request.setStatus(...)` trong Service/Controller. Luôn dùng `request.changeStatus(...)` (đã kiểm tra `RequestStatus.canTransitionTo()`). Ngoại lệ duy nhất: `DataInitializer` khi seed dữ liệu.
+- `changeStatus()` chỉ kiểm tra bước đi hợp lệ. Việc kiểm tra ai được chuyển vẫn nằm trong Service.
+
+## Phân quyền
+- Kiểm tra cả role và quyền sở hữu dữ liệu trong Service, không chỉ dựa vào URL.
+- Rescuer chỉ cập nhật yêu cầu mình đã nhận. Victim chỉ sửa/hủy yêu cầu của mình khi còn SENT.
+- Rescuer chưa nhận yêu cầu thì không được thấy họ tên và SĐT của Victim.
+
+## Giao diện
+- Trang của người đã đăng nhập dùng `fragments/layout.html` qua `th:replace="~{${content} :: content}"`; trang con bọc nội dung trong `<div th:fragment="content">`.
+- Trang công khai (`landing`, `auth/login`, `auth/register`) là trang độc lập, không dùng layout.
+- Muốn thêm link menu, chỉ sửa file `fragments/nav-<role>.html` của role mình. Không sửa `layout.html`.
+- Giữ nguyên `sec:authentication` và `sec:authorize` trong `layout.html` (đang chạy đúng), không "dọn dẹp" hay thay bằng cách khác.
+
+## Ngoài phạm vi
+- OTP, quên mật khẩu, WebSocket, upload file, biểu đồ, nhúng bản đồ (chỉ dùng link Google Maps).
+
+## Cấm / cần xác nhận
 - Không đọc, ghi, commit `.env`. Không hard-code mật khẩu hay connection string.
-- Không thêm dependency vào `pom.xml`, không sửa entity trong `model/`, `SecurityConfig`, `layout.html` khi chưa hỏi nhóm trưởng.
-- Sau mỗi thay đổi code, chạy `./mvnw clean install -DskipTests` và báo kết quả.
+- Không sửa phần DB trong `application.properties`, không đổi `ddl-auto`.
+- Không tự `git commit`/`git push`.
+- Muốn thêm dependency vào `pom.xml`, hoặc sửa entity trong `model/`, `SecurityConfig`, `layout.html`, `DataInitializer`: DỪNG, nêu đề xuất và chờ người dùng xác nhận. Không tự sửa.
+- `ReliefRequestRepository` dùng chung: chỉ thêm method mới ở cuối file, không sửa hay xóa method của người khác.
+
+## Kiểm tra
+- Sau mỗi thay đổi code, chạy `.\mvnw.cmd -q compile` và báo kết quả.
