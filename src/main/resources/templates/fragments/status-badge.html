@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Badge trạng thái dùng chung: th:replace="~{fragments/status-badge :: badge(${r.status.name()})}" -->
+<span th:fragment="badge(status)" th:switch="${status}">
+    <span th:case="'SENT'" class="badge bg-secondary">Đã gửi</span>
+    <span th:case="'ACCEPTED'" class="badge bg-info text-dark">Đã tiếp nhận</span>
+    <span th:case="'PROCESSING'" class="badge bg-primary">Đang xử lý</span>
+    <span th:case="'COMPLETED'" class="badge bg-success">Hoàn thành</span>
+    <span th:case="'CONFIRMED'" class="badge bg-success">Đã xác nhận</span>
+    <span th:case="'CANCELLED'" class="badge bg-danger">Đã hủy</span>
+    <span th:case="*" class="badge bg-light text-dark" th:text="${status}"></span>
+</span>
+</body>
+</html>
