@@ -12,4 +12,5 @@ public interface ReliefRequestRepository extends JpaRepository<ReliefRequest, Lo
     List<ReliefRequest> findByVictim(Victim victim);
     List<ReliefRequest> findByRescuer(Rescuer rescuer);
     long countByStatus(RequestStatus status);
+    List<ReliefRequest> findByVictimOrderByCreatedAtDesc(Victim victim);
 }

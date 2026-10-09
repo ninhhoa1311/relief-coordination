@@ -1,0 +1,60 @@
+<div th:fragment="content">
+    <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0" th:text="'Yêu cầu #' + ${request.id}"></h2>
+        <span th:replace="~{fragments/status-badge :: badge(${request.status.name()})}"></span>
+    </div>
+
+    <table class="table table-bordered">
+        <tr><th style="width:220px">Địa điểm</th><td th:text="${request.location}"></td></tr>
+        <tr>
+            <th>Tọa độ GPS</th>
+            <td>
+                <span th:if="${request.hasLocation()}">
+                    <span th:text="${request.latitude} + ', ' + ${request.longitude}"></span>
+                    <a th:href="${request.mapUrl}" target="_blank" rel="noopener">Xem trên Google Maps</a>
+                </span>
+                <span th:unless="${request.hasLocation()}" class="text-muted">Không có</span>
+            </td>
+        </tr>
+        <tr><th>Loại nhu cầu</th>
+            <td th:text="${T(com.reliefcoordination.relief_coordination.util.EnumLabels).need(request.needType)}"></td></tr>
+        <tr><th>Số người cần hỗ trợ</th><td th:text="${request.numberOfPeople}"></td></tr>
+        <tr><th>Mức độ khẩn cấp</th>
+            <td th:text="${T(com.reliefcoordination.relief_coordination.util.EnumLabels).urgency(request.urgencyLevel)}"></td></tr>
+        <tr><th>Mô tả</th><td th:text="${request.description} ?: '—'"></td></tr>
+        <tr><th>Thời gian tạo</th>
+            <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm')}"></td></tr>
+        <tr><th>Cập nhật lần cuối</th>
+            <td th:text="${#temporals.format(request.updatedAt, 'dd/MM/yyyy HH:mm')}"></td></tr>
+    </table>
+
+    <!-- Thông tin Rescuer: chỉ hiện khi đã có người nhận -->
+    <div class="card mb-3" th:if="${request.rescuer != null}">
+        <div class="card-header">Người cứu trợ đang xử lý</div>
+        <div class="card-body">
+            <p class="mb-1"><strong>Họ tên:</strong> <span th:text="${request.rescuer.fullName}"></span></p>
+            <p class="mb-0"><strong>Số điện thoại:</strong> <span th:text="${request.rescuer.phoneNumber}"></span></p>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-secondary" th:href="@{/victim/home}">Quay lại</a>
+
+        <!-- Sửa / Hủy: chỉ khi còn SENT -->
+        <a class="btn btn-outline-primary" th:if="${request.editable}"
+           th:href="@{/victim/requests/{id}/edit(id=${request.id})}">Sửa yêu cầu</a>
+        <form th:if="${request.editable}" th:action="@{/victim/requests/{id}/cancel(id=${request.id})}"
+              method="post" onsubmit="return confirm('Bạn chắc chắn muốn hủy yêu cầu này?');">
+            <button type="submit" class="btn btn-outline-danger">Hủy yêu cầu</button>
+        </form>
+
+        <!-- Xác nhận: chỉ khi COMPLETED -->
+        <form th:if="${request.status.name() == 'COMPLETED'}"
+              th:action="@{/victim/requests/{id}/confirm(id=${request.id})}" method="post">
+            <button type="submit" class="btn btn-success">Xác nhận đã nhận hỗ trợ</button>
+        </form>
+    </div>
+</div>

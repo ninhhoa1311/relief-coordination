@@ -1,4 +1,40 @@
 <div th:fragment="content">
-    <h2>Trang chu Victim</h2>
-    <p>Chao mung ban den voi he thong dieu phoi cuu tro thien tai.</p>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Yêu cầu của tôi</h2>
+        <a class="btn btn-primary" th:href="@{/victim/requests/new}">+ Tạo yêu cầu mới</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <div class="alert alert-info" th:if="${#lists.isEmpty(requests)}">
+        Bạn chưa có yêu cầu cứu trợ nào.
+    </div>
+
+    <table class="table table-hover align-middle" th:unless="${#lists.isEmpty(requests)}">
+        <thead class="table-light">
+        <tr>
+            <th>Mã</th>
+            <th>Địa điểm</th>
+            <th>Loại nhu cầu</th>
+            <th>Số người</th>
+            <th>Mức khẩn cấp</th>
+            <th>Trạng thái</th>
+            <th>Thời gian tạo</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${requests}">
+            <td th:text="'#' + ${r.id}"></td>
+            <td th:text="${r.location}"></td>
+            <td th:text="${T(com.reliefcoordination.relief_coordination.util.EnumLabels).need(r.needType)}"></td>
+            <td th:text="${r.numberOfPeople}"></td>
+            <td th:text="${T(com.reliefcoordination.relief_coordination.util.EnumLabels).urgency(r.urgencyLevel)}"></td>
+            <td th:replace="~{fragments/status-badge :: badge(${r.status.name()})}"></td>
+            <td th:text="${#temporals.format(r.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+            <td><a class="btn btn-sm btn-outline-primary" th:href="@{/victim/requests/{id}(id=${r.id})}">Chi tiết</a></td>
+        </tr>
+        </tbody>
+    </table>
 </div>
