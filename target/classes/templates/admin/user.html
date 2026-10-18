@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<body>
+    <div th:replace="~{fragments/nav-admin :: nav}"></div>
+    <div class="container">
+        <table class="table table-bordered text-center">
+            <thead class="table-dark"><tr><th>ID</th><th>Email</th><th>Role</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <tbody>
+                <tr th:each="u : ${users}">
+                    <td th:text="${u.id}"></td><td th:text="${u.email}"></td><td th:text="${u.role.name()}"></td>
+                    <td th:text="${u.locked ? 'Bị khóa' : 'Hoạt động'}"></td>
+                    <td>
+                        <form th:if="${u.role.name() != 'ADMIN'}" th:action="@{/admin/users/{id}/toggle-lock(id=${u.id})}" method="post">
+                            <button class="btn btn-sm" th:classappend="${u.locked} ? 'btn-success' : 'btn-warning'" 
+                                    th:text="${u.locked} ? 'Mở khóa' : 'Khóa'"></button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

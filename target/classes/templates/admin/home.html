@@ -1,0 +1,67 @@
+<div th:fragment="content">
+    <h2 class="mb-4">Thống kê tổng quan</h2>
+
+    <div class="row g-3">
+        <div class="col-md-4 col-lg-3">
+            <div class="card text-bg-secondary">
+                <div class="card-body">
+                    <div class="small">Tổng yêu cầu</div>
+                    <div class="fs-3 fw-semibold" th:text="${stats.totalRequests()}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card text-bg-light border">
+                <div class="card-body">
+                    <div class="small">Đang chờ</div>
+                    <div class="fs-3 fw-semibold" th:text="${stats.waitingCount()}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card text-bg-primary">
+                <div class="card-body">
+                    <div class="small">Đang xử lý</div>
+                    <div class="fs-3 fw-semibold" th:text="${stats.processingCount()}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card text-bg-warning">
+                <div class="card-body">
+                    <div class="small">Hoàn thành</div>
+                    <div class="fs-3 fw-semibold" th:text="${stats.completedCount()}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card text-bg-success">
+                <div class="card-body">
+                    <div class="small">Đã xác nhận</div>
+                    <div class="fs-3 fw-semibold" th:text="${stats.confirmedCount()}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card text-bg-danger">
+                <div class="card-body">
+                    <div class="small">Đã hủy</div>
+                    <div class="fs-3 fw-semibold" th:text="${stats.cancelledCount()}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card text-bg-dark">
+                <div class="card-body">
+                    <div class="small">Người được hỗ trợ</div>
+                    <div class="fs-3 fw-semibold" th:text="${stats.peopleHelped()}">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-primary" th:href="@{/admin/users}">Quản lý tài khoản</a>
+        <a class="btn btn-outline-primary" th:href="@{/admin/requests}">Quản lý yêu cầu</a>
+    </div>
+</div>

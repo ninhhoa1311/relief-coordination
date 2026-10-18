@@ -1,0 +1,58 @@
+<div th:fragment="content">
+    <h2 class="mb-3">Tất cả yêu cầu</h2>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>Mã</th>
+                <th>Người gửi</th>
+                <th>Loại</th>
+                <th>Khẩn cấp</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="request : ${requests}">
+                <td th:text="'#' + ${request.id}">#1</td>
+                <td th:text="${request.victim.fullName}">Người gửi</td>
+                <td th:switch="${request.needType.name()}">
+                    <span th:case="'FOOD'">Thực phẩm</span>
+                    <span th:case="'WATER'">Nước uống</span>
+                    <span th:case="'MEDICAL'">Y tế</span>
+                    <span th:case="'SHELTER'">Chỗ ở</span>
+                    <span th:case="'RESCUE'">Cứu người</span>
+                    <span th:case="'OTHER'">Khác</span>
+                    <span th:case="*">Khác</span>
+                </td>
+                <td th:switch="${request.urgencyLevel.name()}">
+                    <span th:case="'LOW'">Thấp</span>
+                    <span th:case="'MEDIUM'">Trung bình</span>
+                    <span th:case="'HIGH'">Cao</span>
+                    <span th:case="'CRITICAL'">Khẩn cấp</span>
+                    <span th:case="*">Trung bình</span>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${request.status.name() == 'SENT'} ? 'text-bg-secondary' : (${request.status.name() == 'ACCEPTED'} ? 'text-bg-primary' : (${request.status.name() == 'PROCESSING'} ? 'text-bg-warning' : (${request.status.name() == 'COMPLETED'} ? 'text-bg-success-subtle text-success' : (${request.status.name() == 'CONFIRMED'} ? 'text-bg-success' : 'text-bg-danger'))))"
+                          th:text="${request.status}">SENT</span>
+                </td>
+                <td class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-sm btn-outline-primary"
+                       th:href="@{/admin/requests/{id}(id=${request.id})}">Xem</a>
+                    <form th:if="${request.status.canTransitionTo(T(com.reliefcoordination.relief_coordination.model.RequestStatus).CANCELLED)}"
+                          th:action="@{/admin/requests/{id}/cancel(id=${request.id})}"
+                          method="post">
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Hủy yêu cầu này?');">Hủy</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
