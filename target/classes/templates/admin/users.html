@@ -1,0 +1,40 @@
+<div th:fragment="content">
+    <h2 class="mb-3">Danh sách tài khoản</h2>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>Họ tên</th>
+                <th>Email</th>
+                <th>Vai trò</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="account : ${accounts}">
+                <td th:text="${account.fullName()}">Họ tên</td>
+                <td th:text="${account.email()}">email</td>
+                <td th:text="${account.role()}">Victim</td>
+                <td th:text="${account.locked()} ? 'Đã khóa' : 'Hoạt động'">Hoạt động</td>
+                <td>
+                    <form th:if="${!account.admin()}"
+                          th:action="@{/admin/users/{id}/toggle-lock(id=${account.id()})}"
+                          method="post">
+                        <button type="submit"
+                                class="btn btn-sm"
+                                th:classappend="${account.locked()} ? 'btn-success' : 'btn-warning'"
+                                th:text="${account.locked()} ? 'Mở khóa' : 'Khóa'">
+                            Khóa
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

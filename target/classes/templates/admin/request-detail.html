@@ -1,0 +1,54 @@
+<div th:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Yêu cầu #<span th:text="${request.id}">1</span></h2>
+        <span class="badge"
+              th:classappend="${request.status.name() == 'SENT'} ? 'text-bg-secondary' : (${request.status.name() == 'ACCEPTED'} ? 'text-bg-primary' : (${request.status.name() == 'PROCESSING'} ? 'text-bg-warning' : (${request.status.name() == 'COMPLETED'} ? 'text-bg-success-subtle text-success' : (${request.status.name() == 'CONFIRMED'} ? 'text-bg-success' : 'text-bg-danger'))))"
+              th:text="${request.status}">SENT</span>
+    </div>
+
+    <dl class="row">
+        <dt class="col-sm-3">Người gửi</dt>
+        <dd class="col-sm-9" th:text="${request.victim.fullName + ' — ' + request.victim.phoneNumber}">Tên</dd>
+
+        <dt class="col-sm-3">Địa điểm</dt>
+        <dd class="col-sm-9" th:text="${request.location}">Địa điểm</dd>
+
+        <dt class="col-sm-3">Loại nhu cầu</dt>
+        <dd class="col-sm-9" th:switch="${request.needType.name()}">
+            <span th:case="'FOOD'">Thực phẩm</span>
+            <span th:case="'WATER'">Nước uống</span>
+            <span th:case="'MEDICAL'">Y tế</span>
+            <span th:case="'SHELTER'">Chỗ ở</span>
+            <span th:case="'RESCUE'">Cứu người</span>
+            <span th:case="'OTHER'">Khác</span>
+        </dd>
+
+        <dt class="col-sm-3">Số người</dt>
+        <dd class="col-sm-9" th:text="${request.numberOfPeople}">1</dd>
+
+        <dt class="col-sm-3">Mức độ khẩn</dt>
+        <dd class="col-sm-9" th:switch="${request.urgencyLevel.name()}">
+            <span th:case="'LOW'">Thấp</span>
+            <span th:case="'MEDIUM'">Trung bình</span>
+            <span th:case="'HIGH'">Cao</span>
+            <span th:case="'CRITICAL'">Khẩn cấp</span>
+        </dd>
+
+        <dt class="col-sm-3">Mô tả</dt>
+        <dd class="col-sm-9" th:text="${request.description}">Mô tả</dd>
+
+        <dt class="col-sm-3">Bản đồ</dt>
+        <dd class="col-sm-9">
+            <a th:if="${request.hasLocation()}" th:href="${request.mapUrl}" target="_blank" rel="noopener">Xem bản đồ</a>
+            <span th:unless="${request.hasLocation()}">Không có tọa độ GPS</span>
+        </dd>
+    </dl>
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" th:href="@{/admin/requests}">Quay lại</a>
+        <form th:if="${canCancel}" th:action="@{/admin/requests/{id}/cancel(id=${request.id})}" method="post">
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Hủy yêu cầu này?');">Hủy yêu cầu</button>
+        </form>
+    </div>
+</div>
