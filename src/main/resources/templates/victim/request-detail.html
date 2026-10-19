@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-8">
+
+            <!-- Flash alerts -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Card chi tiết yêu cầu -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
+                    <h4 class="card-title mb-0">
+                        Chi tiết yêu cầu cứu trợ <span class="text-primary" th:text="'#' + ${request.id}"></span>
+                    </h4>
+                    <div>
+                        <th:block th:replace="~{fragments/status-badge :: badge(${request.status})}"></th:block>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <!-- Địa điểm -->
+                        <div class="col-12">
+                            <label class="text-muted small">Địa điểm cần cứu trợ:</label>
+                            <div class="fs-5 fw-bold text-dark" th:text="${request.location}"></div>
+                            <div th:if="${request.hasLocation()}" class="mt-2">
+                                <span class="badge text-bg-light border text-secondary"
+                                      th:text="'Tọa độ: ' + ${request.latitude} + ', ' + ${request.longitude}"></span>
+                                <a th:href="${request.mapUrl}" target="_blank" rel="noopener noreferrer"
+                                   class="btn btn-sm btn-outline-primary ms-2">
+                                    🗺️ Mở trên Google Maps
+                                </a>
+                            </div>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <!-- Thông tin cứu trợ -->
+                        <div class="col-md-4">
+                            <label class="text-muted small">Loại nhu cầu:</label>
+                            <div class="fw-semibold fs-6" th:text="${request.needType}"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Số người:</label>
+                            <div class="fw-semibold fs-6" th:text="${request.numberOfPeople} + ' người'"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small">Mức độ khẩn cấp:</label>
+                            <div>
+                                <span class="badge"
+                                      th:classappend="${request.urgencyLevel.name() == 'CRITICAL' ? 'bg-danger' : (request.urgencyLevel.name() == 'HIGH' ? 'bg-warning text-dark' : 'bg-info text-dark')}"
+                                      th:text="${request.urgencyLevel}">
+                                </span>
+                            </div>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <!-- Mô tả -->
+                        <div class="col-12">
+                            <label class="text-muted small">Mô tả chi tiết:</label>
+                            <div class="p-3 bg-light rounded"
+                                 th:text="${request.description != null && !request.description.isBlank()} ? ${request.description} : 'Không có mô tả bổ sung.'">
+                            </div>
+                        </div>
+
+                        <!-- Thời gian -->
+                        <div class="col-md-6 text-muted small">
+                            Thời gian gửi:
+                            <span th:text="${request.createdAt != null ? #temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></span>
+                        </div>
+                        <div class="col-md-6 text-muted small text-md-end">
+                            Cập nhật lần cuối:
+                            <span th:text="${request.updatedAt != null ? #temporals.format(request.updatedAt, 'dd/MM/yyyy HH:mm') : '-'}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thông tin Đội cứu hộ (chỉ hiện khi status != SENT) -->
+            <div th:if="${request.status.name() != 'SENT'}" class="card shadow-sm border-info mb-4">
+                <div class="card-header bg-info-subtle text-info-emphasis fw-bold py-3">
+                    ⛑️ Thông tin Đội / Người cứu hộ tiếp nhận
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="text-muted small">Họ và tên người cứu hộ:</label>
+                            <div class="fs-6 fw-bold"
+                                 th:text="${request.rescuer != null ? request.rescuer.fullName : 'Đang phân công'}">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="text-muted small">Số điện thoại liên hệ:</label>
+                            <div class="fs-6 fw-bold text-primary">
+                                <a th:if="${request.rescuer != null && request.rescuer.phoneNumber != null}"
+                                   th:href="'tel:' + ${request.rescuer.phoneNumber}"
+                                   th:text="${request.rescuer.phoneNumber}"
+                                   class="text-decoration-none"></a>
+                                <span th:if="${request.rescuer == null || request.rescuer.phoneNumber == null}">Chưa có</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hành động theo trạng thái -->
+            <div class="d-flex justify-content-between align-items-center">
+                <a th:href="@{/victim/home}" class="btn btn-secondary">
+                    Quay lại danh sách
+                </a>
+
+                <div class="d-flex gap-2">
+                    <!-- Sửa/Hủy chỉ khi status == SENT -->
+                    <th:block th:if="${request.status.name() == 'SENT'}">
+                        <a th:href="@{/victim/requests/{id}/edit(id=${request.id})}" class="btn btn-warning">
+                            Sửa yêu cầu
+                        </a>
+                        <form th:action="@{/victim/requests/{id}/cancel(id=${request.id})}" method="post"
+                              onsubmit="return confirm('Bạn có chắc chắn muốn hủy yêu cầu cứu trợ này?');">
+                            <button type="submit" class="btn btn-danger">
+                                Hủy yêu cầu
+                            </button>
+                        </form>
+                    </th:block>
+
+                    <!-- Xác nhận đã nhận khi status == COMPLETED -->
+                    <th:block th:if="${request.status.name() == 'COMPLETED'}">
+                        <form th:action="@{/victim/requests/{id}/confirm(id=${request.id})}" method="post"
+                              onsubmit="return confirm('Xác nhận bạn đã nhận được cứu trợ đầy đủ từ đội cứu hộ?');">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                Xác nhận đã nhận cứu trợ
+                            </button>
+                        </form>
+                    </th:block>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

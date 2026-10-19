@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+
+    <!-- Flash messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">Nhiệm vụ của tôi</h3>
+            <p class="text-muted mb-0">Danh sách các yêu cầu cứu trợ bạn đã tiếp nhận</p>
+        </div>
+    </div>
+
+    <!-- Danh sách nhiệm vụ -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            <!-- Chưa có nhiệm vụ nào -->
+            <div th:if="${#lists.isEmpty(tasks)}" class="text-center py-5">
+                <p class="text-muted fs-5 mb-1">Bạn chưa có nhiệm vụ nào.</p>
+                <p class="text-muted small mb-3">Hãy nhận nhiệm vụ từ danh sách yêu cầu đang chờ.</p>
+                <a th:href="@{/rescuer/home}" class="btn btn-outline-primary">
+                    Xem yêu cầu đang chờ
+                </a>
+            </div>
+
+            <!-- Bảng nhiệm vụ -->
+            <div th:unless="${#lists.isEmpty(tasks)}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-3">Mã #</th>
+                            <th scope="col">Địa điểm</th>
+                            <th scope="col">Loại nhu cầu</th>
+                            <th scope="col">Số người</th>
+                            <th scope="col">Mức khẩn cấp</th>
+                            <th scope="col">Thời gian nhận</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col" class="text-end pe-3">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="task : ${tasks}">
+                            <td class="ps-3 fw-bold text-secondary" th:text="'#' + ${task.id}"></td>
+                            <td>
+                                <span class="fw-semibold text-dark" th:text="${task.location}"></span>
+                                <div th:if="${task.hasLocation()}" class="small">
+                                    <a th:href="${task.mapUrl}" target="_blank" rel="noopener noreferrer"
+                                       class="text-decoration-none small text-primary">📍 Bản đồ</a>
+                                </div>
+                            </td>
+                            <td th:text="${task.needType}"></td>
+                            <td th:text="${task.numberOfPeople} + ' người'"></td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${task.urgencyLevel.name() == 'CRITICAL' ? 'bg-danger' :
+                                                       (task.urgencyLevel.name() == 'HIGH'     ? 'bg-warning text-dark' :
+                                                       (task.urgencyLevel.name() == 'MEDIUM'   ? 'bg-info text-dark' :
+                                                                                                 'bg-secondary'))}"
+                                      th:text="${task.urgencyLevel.name() == 'CRITICAL' ? '🔴 CRITICAL' :
+                                                (task.urgencyLevel.name() == 'HIGH'     ? '🟠 HIGH' :
+                                                (task.urgencyLevel.name() == 'MEDIUM'   ? '🟡 MEDIUM' :
+                                                                                          '🟢 LOW'))}">
+                                </span>
+                            </td>
+                            <td class="text-muted small"
+                                th:text="${task.updatedAt != null ? #temporals.format(task.updatedAt, 'dd/MM/yyyy HH:mm') : '-'}">
+                            </td>
+                            <td>
+                                <th:block th:replace="~{fragments/status-badge :: badge(${task.status})}"></th:block>
+                            </td>
+                            <td class="text-end pe-3">
+                                <a th:href="@{/rescuer/tasks/{id}(id=${task.id})}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Xem chi tiết
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

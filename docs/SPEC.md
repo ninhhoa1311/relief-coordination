@@ -7,7 +7,7 @@
 
 **Phạm vi**
 
-- KHÔNG làm: xác thực email/OTP, quên mật khẩu, WebSocket/real-time, upload file/ảnh, biểu đồ, quản lý kho/vật tư/thanh toán, quản lý hồ sơ cá nhân (có thể thêm nếu dư thời gian).
+- KHÔNG làm: xác thực email/OTP, quên mật khẩu, WebSocket/real-time, upload file/ảnh, biểu đồ, quản lý kho/vật tư/thanh toán.
 - Bản đồ: chỉ dùng link Google Maps `https://www.google.com/maps?q={lat},{lng}`. Không nhúng Leaflet/OpenStreetMap.
 - Thống kê Admin: chỉ dùng thẻ số (card), không vẽ biểu đồ.
 
@@ -23,7 +23,8 @@
 
 **Tài khoản**
 
-- Victim và Rescuer tự đăng ký, không cần Admin duyệt.
+- Victim tự đăng ký, tài khoản được kích hoạt ngay (`enabled=true`).
+- Rescuer tự đăng ký nhưng tài khoản ở trạng thái chờ duyệt (`enabled=false`). Admin phải vào trang quản lý tài khoản bấm "Mở khóa" thì Rescuer mới đăng nhập được. Sau khi đăng ký, Rescuer thấy thông báo "Đăng ký thành công, tài khoản đang chờ Admin xác minh".
 - Admin chỉ được tạo bởi `DataInitializer` (không có trang đăng ký Admin).
 - Admin có thể khóa/mở khóa Victim và Rescuer. Tài khoản bị khóa không đăng nhập được, báo "Tài khoản đã bị khóa".
 
@@ -89,15 +90,16 @@ Luồng chính: `SENT → ACCEPTED → PROCESSING → COMPLETED → CONFIRMED`.
 - Mật khẩu luôn mã hóa BCrypt qua `PasswordEncoder`.
 - Kiểm tra quyền ở tầng Service, không chỉ dựa vào URL.
 
-## 5. Thống kê Admin (thẻ số)
+## 5. Thống kê Admin (8 thẻ số)
 
-- **Tổng số yêu cầu**: Tất cả yêu cầu
-- **Đang chờ**: Số yêu cầu `SENT`
-- **Đang xử lý**: Số yêu cầu `ACCEPTED` + `PROCESSING`
-- **Hoàn thành**: Số yêu cầu `COMPLETED`
-- **Đã xác nhận**: Số yêu cầu `CONFIRMED`
-- **Đã hủy**: Số yêu cầu `CANCELLED`
-- **Số người đã được hỗ trợ**: Tổng `numberOfPeople` của các yêu cầu `CONFIRMED`
+1. **Tổng số yêu cầu**: Tất cả yêu cầu
+2. **Đã gửi (SENT)**: Số yêu cầu `SENT`
+3. **Đã tiếp nhận (ACCEPTED)**: Số yêu cầu `ACCEPTED`
+4. **Đang xử lý (PROCESSING)**: Số yêu cầu `PROCESSING`
+5. **Hoàn thành (COMPLETED)**: Số yêu cầu `COMPLETED`
+6. **Đã xác nhận (CONFIRMED)**: Số yêu cầu `CONFIRMED`
+7. **Đã hủy (CANCELLED)**: Số yêu cầu `CANCELLED`
+8. **Số người đã nhận được hỗ trợ**: Tổng `numberOfPeople` của các yêu cầu `CONFIRMED`
 
 ## 6. Cấu trúc URL
 
@@ -431,4 +433,4 @@ Có sẵn 20 yêu cầu mẫu: SENT 7, ACCEPTED 3, PROCESSING 3, COMPLETED 2, CO
 
 ## 11. Hướng mở rộng (chỉ làm nếu dư thời gian)
 
-Hồ sơ cá nhân, thông báo trong trang, đánh giá Rescuer.
+Thông báo trong trang, đánh giá Rescuer.

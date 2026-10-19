@@ -1,4 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
 <div th:fragment="content">
-    <h2>Trang chu Rescuer</h2>
-    <p>Chao mung ban den voi he thong dieu phoi cuu tro thien tai.</p>
+
+    <!-- Flash messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">Yêu cầu cứu trợ đang chờ</h3>
+            <p class="text-muted mb-0">Danh sách yêu cầu chưa có người tiếp nhận, sắp xếp theo mức khẩn cấp</p>
+        </div>
+    </div>
+
+    <!-- Form tìm kiếm / lọc -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form method="GET" th:action="@{/rescuer/requests/search}" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="location" class="form-label fw-semibold small text-muted">📍 Địa điểm</label>
+                    <input type="text" id="location" name="location" class="form-control"
+                           placeholder="Tìm theo địa điểm..."
+                           th:value="${filterLocation}">
+                </div>
+                <div class="col-md-3">
+                    <label for="needType" class="form-label fw-semibold small text-muted">🆘 Loại nhu cầu</label>
+                    <select id="needType" name="needType" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        <option th:each="nt : ${needTypes}"
+                                th:value="${nt.name()}"
+                                th:text="${nt.name()}"
+                                th:selected="${nt == filterNeedType}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="urgencyLevel" class="form-label fw-semibold small text-muted">⚡ Mức khẩn cấp</label>
+                    <select id="urgencyLevel" name="urgencyLevel" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        <option th:each="ul : ${urgencyLevels}"
+                                th:value="${ul.name()}"
+                                th:text="${ul.name()}"
+                                th:selected="${ul == filterUrgencyLevel}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+                    <a th:href="@{/rescuer/home}" class="btn btn-outline-secondary" title="Xóa bộ lọc">✕</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Danh sách yêu cầu -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            <!-- Không có yêu cầu nào -->
+            <div th:if="${#lists.isEmpty(requests)}" class="text-center py-5">
+                <p class="text-muted fs-5 mb-1">Hiện không có yêu cầu cứu trợ nào đang chờ.</p>
+                <p class="text-muted small">Hãy kiểm tra lại sau hoặc xóa bộ lọc tìm kiếm.</p>
+            </div>
+
+            <!-- Bảng danh sách -->
+            <div th:unless="${#lists.isEmpty(requests)}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-3">Mã #</th>
+                            <th scope="col">Địa điểm</th>
+                            <th scope="col">Loại nhu cầu</th>
+                            <th scope="col">Số người</th>
+                            <th scope="col">Mức khẩn cấp</th>
+                            <th scope="col">Thời gian gửi</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col" class="text-end pe-3">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="req : ${requests}">
+                            <td class="ps-3 fw-bold text-secondary" th:text="'#' + ${req.id}"></td>
+                            <td>
+                                <span class="fw-semibold text-dark" th:text="${req.location}"></span>
+                                <div th:if="${req.hasLocation()}" class="small">
+                                    <a th:href="${req.mapUrl}" target="_blank" rel="noopener noreferrer"
+                                       class="text-decoration-none small text-primary">📍 Bản đồ</a>
+                                </div>
+                            </td>
+                            <td th:text="${req.needType}"></td>
+                            <td th:text="${req.numberOfPeople} + ' người'"></td>
+                            <td>
+                                <!-- Badge màu riêng cho từng mức khẩn cấp -->
+                                <span class="badge"
+                                      th:classappend="${req.urgencyLevel.name() == 'CRITICAL' ? 'bg-danger' :
+                                                       (req.urgencyLevel.name() == 'HIGH'     ? 'bg-warning text-dark' :
+                                                       (req.urgencyLevel.name() == 'MEDIUM'   ? 'bg-info text-dark' :
+                                                                                                'bg-secondary'))}"
+                                      th:text="${req.urgencyLevel.name() == 'CRITICAL' ? '🔴 CRITICAL' :
+                                                (req.urgencyLevel.name() == 'HIGH'     ? '🟠 HIGH' :
+                                                (req.urgencyLevel.name() == 'MEDIUM'   ? '🟡 MEDIUM' :
+                                                                                         '🟢 LOW'))}">
+                                </span>
+                            </td>
+                            <td class="text-muted small"
+                                th:text="${req.createdAt != null ? #temporals.format(req.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">
+                            </td>
+                            <td>
+                                <th:block th:replace="~{fragments/status-badge :: badge(${req.status})}"></th:block>
+                            </td>
+                            <td class="text-end pe-3">
+                                <a th:href="@{/rescuer/requests/{id}(id=${req.id})}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Xem chi tiết
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
 </div>
+</body>
+</html>

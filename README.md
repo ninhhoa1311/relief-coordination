@@ -51,6 +51,8 @@ Khi database chưa có user, `config/DataInitializer.java` seed các tài khoả
 | Victim | `victim2@relief.vn` | `victim123` |
 | Victim | `victim3@relief.vn` | `victim123` |
 
+> **Lưu ý về đăng ký:** Victim đăng ký xong đăng nhập ngay được. Rescuer đăng ký xong tài khoản ở trạng thái chờ duyệt (`enabled=false`); Admin phải vào trang quản lý tài khoản bấm "Mở khóa" thì Rescuer mới đăng nhập được.
+
 ## Cấu trúc thư mục
 
 ```

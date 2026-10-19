@@ -1,4 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
 <div th:fragment="content">
-    <h2>Trang chu Victim</h2>
-    <p>Chao mung ban den voi he thong dieu phoi cuu tro thien tai.</p>
+
+    <!-- Flash messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Header & Nút tạo yêu cầu mới -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">Yêu cầu cứu trợ của tôi</h3>
+            <p class="text-muted mb-0">Theo dõi trạng thái và tiến độ các yêu cầu cứu trợ đã gửi</p>
+        </div>
+        <a th:href="@{/victim/requests/new}" class="btn btn-primary shadow-sm">
+            ➕ Tạo yêu cầu mới
+        </a>
+    </div>
+
+    <!-- Danh sách yêu cầu -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <!-- Trường hợp chưa có yêu cầu -->
+            <div th:if="${#lists.isEmpty(requests)}" class="text-center py-5">
+                <p class="text-muted fs-5 mb-3">Bạn chưa có yêu cầu cứu trợ nào.</p>
+                <a th:href="@{/victim/requests/new}" class="btn btn-outline-primary">
+                    Tạo yêu cầu cứu trợ ngay
+                </a>
+            </div>
+
+            <!-- Trường hợp có danh sách yêu cầu -->
+            <div th:unless="${#lists.isEmpty(requests)}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-3">Mã #</th>
+                            <th scope="col">Địa điểm</th>
+                            <th scope="col">Nhu cầu</th>
+                            <th scope="col">Số người</th>
+                            <th scope="col">Mức độ</th>
+                            <th scope="col">Thời gian gửi</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col" class="text-end pe-3">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="req : ${requests}">
+                            <td class="ps-3 fw-bold text-secondary" th:text="'#' + ${req.id}"></td>
+                            <td>
+                                <span class="fw-semibold text-dark" th:text="${req.location}"></span>
+                                <div th:if="${req.hasLocation()}" class="small">
+                                    <a th:href="${req.mapUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none small text-primary">
+                                        📍 Bản đồ
+                                    </a>
+                                </div>
+                            </td>
+                            <td th:text="${req.needType}"></td>
+                            <td th:text="${req.numberOfPeople} + ' người'"></td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${req.urgencyLevel.name() == 'CRITICAL' ? 'bg-danger' : (req.urgencyLevel.name() == 'HIGH' ? 'bg-warning text-dark' : 'bg-info text-dark')}"
+                                      th:text="${req.urgencyLevel}">
+                                </span>
+                            </td>
+                            <td class="text-muted small"
+                                th:text="${req.createdAt != null ? #temporals.format(req.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">
+                            </td>
+                            <td>
+                                <th:block th:replace="~{fragments/status-badge :: badge(${req.status})}"></th:block>
+                            </td>
+                            <td class="text-end pe-3">
+                                <a th:href="@{/victim/requests/{id}(id=${req.id})}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Xem chi tiết
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
 </div>
+</body>
+</html>

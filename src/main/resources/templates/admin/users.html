@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content">
+
+    <h1 class="mb-4">Quản lý tài khoản</h1>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>Số điện thoại</th>
+                    <th>Loại</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.fullName}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td th:text="${user.phoneNumber}"></td>
+                    <td>
+                        <span th:if="${#strings.contains(user.class.simpleName, 'Victim')}"
+                              class="badge text-bg-info">Victim</span>
+                        <span th:if="${#strings.contains(user.class.simpleName, 'Rescuer')}"
+                              class="badge text-bg-primary">Rescuer</span>
+                    </td>
+                    <td>
+                        <span th:if="${user.enabled}"  class="badge text-bg-success">Hoạt động</span>
+                        <span th:unless="${user.enabled}" class="badge text-bg-danger">Đã khóa</span>
+                    </td>
+                    <td class="text-center">
+                        <!-- loai = "victim" hoặc "rescuer" dựa vào tên class -->
+                        <form th:action="@{/admin/users/{loai}/{id}/toggle(
+                                    loai=${#strings.toLowerCase(user.class.simpleName)},
+                                    id=${user.id})}"
+                              method="post">
+                            <button type="submit"
+                                    th:class="${user.enabled}
+                                        ? 'btn btn-sm btn-outline-danger'
+                                        : 'btn btn-sm btn-outline-success'"
+                                    th:text="${user.enabled} ? 'Khóa' : 'Mở khóa'">
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(users)}">
+                    <td colspan="6" class="text-center text-muted">Không có tài khoản nào.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

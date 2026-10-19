@@ -30,6 +30,14 @@ alwaysApply: true
 - Rescuer chỉ cập nhật yêu cầu mình đã nhận. Victim chỉ sửa/hủy yêu cầu của mình khi còn SENT.
 - Rescuer chưa nhận yêu cầu thì không được thấy họ tên và SĐT của Victim.
 
+## Đăng ký tài khoản
+- Victim đăng ký xong có `enabled=true`, đăng nhập ngay được.
+- Rescuer đăng ký xong có `enabled=false`, phải chờ Admin vào trang quản lý tài khoản bấm "Mở khóa" mới đăng nhập được. Sau đăng ký hiển thị thông báo "Đăng ký thành công, tài khoản đang chờ Admin xác minh".
+
+## Trạng thái bổ sung
+- `COMPLETED` có thể chuyển sang `CANCELLED` (chỉ Admin). Tập chuyển đổi: `COMPLETED → Set.of(CONFIRMED, CANCELLED)`.
+- Thống kê Admin gồm **8 thẻ số**: Tổng yêu cầu, Đã gửi (SENT), Đã tiếp nhận (ACCEPTED), Đang xử lý (PROCESSING), Hoàn thành (COMPLETED), Đã xác nhận (CONFIRMED), Đã hủy (CANCELLED), Số người đã nhận được hỗ trợ (tổng numberOfPeople của các yêu cầu CONFIRMED).
+
 ## Giao diện
 - Trang của người đã đăng nhập dùng `fragments/layout.html` qua `th:replace="~{${content} :: content}"`; trang con bọc nội dung trong `<div th:fragment="content">`.
 - Trang công khai (`landing`, `auth/login`, `auth/register`) là trang độc lập, không dùng layout.
