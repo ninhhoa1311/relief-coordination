@@ -1,0 +1,56 @@
+<div th:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0" th:text="'Nhiệm vụ #' + ${task.id}">Nhiệm vụ #1</h2>
+        <span>Trạng thái:
+            <span class="badge fs-6"
+                  th:classappend="${@rescuerViewLabels.statusBadge(task.status)}"
+                  th:text="${task.status}">ACCEPTED</span>
+        </span>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Người cần giúp</dt>
+                <dd class="col-sm-9">
+                    <span th:text="${task.victim.fullName}">Lê Văn A</span>
+                    &mdash; SĐT <span th:text="${task.victim.phoneNumber}">0900000011</span>
+                </dd>
+
+                <dt class="col-sm-3">Địa điểm</dt>
+                <dd class="col-sm-9">
+                    <span th:text="${task.location}">Khu vực 1</span>
+                    <a th:if="${task.hasLocation()}" th:href="${task.mapUrl}"
+                       target="_blank" rel="noopener" class="ms-2">Xem bản đồ</a>
+                </dd>
+
+                <dt class="col-sm-3">Loại nhu cầu</dt>
+                <dd class="col-sm-9" th:text="${@rescuerViewLabels.need(task.needType)}">Thực phẩm</dd>
+
+                <dt class="col-sm-3">Số người</dt>
+                <dd class="col-sm-9" th:text="${task.numberOfPeople}">3</dd>
+
+                <dt class="col-sm-3">Mức độ khẩn cấp</dt>
+                <dd class="col-sm-9" th:text="${@rescuerViewLabels.urgency(task.urgencyLevel)}">Cao</dd>
+
+                <dt class="col-sm-3">Mô tả</dt>
+                <dd class="col-sm-9" th:text="${task.description}">...</dd>
+
+                <dt class="col-sm-3">Thời gian tạo</dt>
+                <dd class="col-sm-9"
+                    th:text="${#temporals.format(task.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 08:00</dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Chỉ hiện đúng 1 nút cho bước hợp lệ kế tiếp; form không gửi trạng thái đích -->
+    <form th:if="${hasNextStep}" th:action="@{/rescuer/tasks/{id}/status(id=${task.id})}" method="post">
+        <button type="submit" class="btn btn-primary"
+                th:text="${@rescuerViewLabels.nextAction(task.status)}">Bắt đầu xử lý</button>
+    </form>
+
+    <a class="btn btn-link ps-0 mt-2" th:href="@{/rescuer/tasks}">&larr; Quay lại danh sách</a>
+</div>
