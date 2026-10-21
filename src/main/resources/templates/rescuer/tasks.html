@@ -1,0 +1,37 @@
+<div th:fragment="content">
+    <h2 class="mb-3">Nhiệm vụ của tôi</h2>
+
+    <div th:if="${tasks.isEmpty()}" class="alert alert-info">
+        Bạn chưa nhận nhiệm vụ nào. Vào <a th:href="@{/rescuer/home}">Yêu cầu chờ</a> để nhận nhiệm vụ.
+    </div>
+
+    <table th:unless="${tasks.isEmpty()}" class="table table-hover align-middle">
+        <thead>
+        <tr>
+            <th>Mã</th>
+            <th>Loại nhu cầu</th>
+            <th>Khẩn cấp</th>
+            <th>Địa điểm</th>
+            <th>Trạng thái</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="t : ${tasks}">
+            <td th:text="'#' + ${t.id}">#1</td>
+            <td th:text="${@rescuerViewLabels.need(t.needType)}">Thực phẩm</td>
+            <td th:text="${@rescuerViewLabels.urgency(t.urgencyLevel)}">Cao</td>
+            <td th:text="${t.location}">Khu vực 1</td>
+            <td>
+                <span class="badge"
+                      th:classappend="${@rescuerViewLabels.statusBadge(t.status)}"
+                      th:text="${t.status}">ACCEPTED</span>
+            </td>
+            <td class="text-end">
+                <a class="btn btn-sm btn-outline-primary"
+                   th:href="@{/rescuer/tasks/{id}(id=${t.id})}">Xem / Cập nhật</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
