@@ -49,8 +49,10 @@
 
                         <!-- Loại nhu cầu / Số người / Mức khẩn cấp -->
                         <div class="col-md-4">
-                            <label class="text-muted small">Loại nhu cầu:</label>
-                            <div class="fw-semibold fs-6" th:text="${task.needType}"></div>
+                            <label class="text-muted small d-block">Loại nhu cầu:</label>
+                            <div>
+                                <th:block th:replace="~{fragments/need-badges :: badges(${task.needTypes})}"></th:block>
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <label class="text-muted small">Số người cần cứu trợ:</label>
@@ -64,10 +66,7 @@
                                                        (task.urgencyLevel.name() == 'HIGH'     ? 'bg-warning text-dark' :
                                                        (task.urgencyLevel.name() == 'MEDIUM'   ? 'bg-info text-dark' :
                                                                                                  'bg-secondary'))}"
-                                      th:text="${task.urgencyLevel.name() == 'CRITICAL' ? '🔴 CRITICAL' :
-                                                (task.urgencyLevel.name() == 'HIGH'     ? '🟠 HIGH' :
-                                                (task.urgencyLevel.name() == 'MEDIUM'   ? '🟡 MEDIUM' :
-                                                                                          '🟢 LOW'))}">
+                                      th:text="${task.urgencyLevel.label}">
                                 </span>
                             </div>
                         </div>
@@ -96,31 +95,63 @@
                 </div>
             </div>
 
-            <!-- Card thông tin Victim — hiện đầy đủ tên + SĐT -->
+            <!-- Card thông tin người cần cứu trợ — xử lý cả SOS (victim = null) -->
             <div class="card shadow-sm border-warning mb-4">
                 <div class="card-header bg-warning-subtle text-warning-emphasis fw-bold py-3">
                     👤 Thông tin người cần cứu trợ
+                    <!-- Badge KHẨN CẤP khi là yêu cầu SOS -->
+                    <span th:if="${task.victim == null}" class="badge bg-danger ms-2">🆘 KHẨN CẤP / SOS</span>
                 </div>
                 <div class="card-body p-4">
                     <div class="row g-3">
-                        <div class="col-sm-6">
-                            <label class="text-muted small">Họ và tên:</label>
-                            <div class="fs-6 fw-bold"
-                                 th:text="${task.victim != null ? task.victim.fullName : 'Không có thông tin'}">
+
+                        <!-- === YÊU CẦU SOS (victim = null) === -->
+                        <th:block th:if="${task.victim == null}">
+                            <div class="col-12">
+                                <div class="alert alert-danger py-2 mb-3">
+                                    Đây là yêu cầu SOS khẩn cấp — người gửi chưa có tài khoản.
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <label class="text-muted small">Số điện thoại liên hệ:</label>
-                            <div class="fs-6 fw-bold text-primary">
-                                <a th:if="${task.victim != null and task.victim.phoneNumber != null}"
-                                   th:href="'tel:' + ${task.victim.phoneNumber}"
-                                   th:text="${task.victim.phoneNumber}"
-                                   class="text-decoration-none">
-                                </a>
-                                <span th:if="${task.victim == null or task.victim.phoneNumber == null}"
-                                      class="text-muted fst-italic">Chưa có</span>
+                            <div class="col-sm-6">
+                                <label class="text-muted small">Họ và tên:</label>
+                                <div class="fs-6 fw-bold"
+                                     th:text="${task.guestName != null ? task.guestName : 'Không có thông tin'}">
+                                </div>
                             </div>
-                        </div>
+                            <div class="col-sm-6">
+                                <label class="text-muted small">Số điện thoại liên hệ:</label>
+                                <div class="fs-6 fw-bold text-danger">
+                                    <a th:if="${task.guestPhone != null}"
+                                       th:href="'tel:' + ${task.guestPhone}"
+                                       th:text="${task.guestPhone}"
+                                       class="text-decoration-none text-danger fw-bold"></a>
+                                    <span th:if="${task.guestPhone == null}"
+                                          class="text-muted fst-italic">Chưa có</span>
+                                </div>
+                            </div>
+                        </th:block>
+
+                        <!-- === YÊU CẦU THƯỜNG (victim != null) === -->
+                        <th:block th:if="${task.victim != null}">
+                            <div class="col-sm-6">
+                                <label class="text-muted small">Họ và tên:</label>
+                                <div class="fs-6 fw-bold"
+                                     th:text="${task.victim.fullName}">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="text-muted small">Số điện thoại liên hệ:</label>
+                                <div class="fs-6 fw-bold text-primary">
+                                    <a th:if="${task.victim.phoneNumber != null}"
+                                       th:href="'tel:' + ${task.victim.phoneNumber}"
+                                       th:text="${task.victim.phoneNumber}"
+                                       class="text-decoration-none"></a>
+                                    <span th:if="${task.victim.phoneNumber == null}"
+                                          class="text-muted fst-italic">Chưa có</span>
+                                </div>
+                            </div>
+                        </th:block>
+
                     </div>
                 </div>
             </div>

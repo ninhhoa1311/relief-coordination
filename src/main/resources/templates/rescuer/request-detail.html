@@ -16,15 +16,31 @@
             </div>
 
             <!-- Card chi tiết yêu cầu -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
+            <div class="card shadow-sm border-0 mb-4"
+                 th:classappend="${request.victim == null} ? 'border-danger border-2'">
+                <div class="card-header d-flex justify-content-between align-items-center py-3"
+                     th:classappend="${request.victim == null} ? 'bg-danger text-white' : 'bg-light'">
                     <h4 class="card-title mb-0">
+                        <span th:if="${request.victim == null}">🆘 </span>
                         Chi tiết yêu cầu cứu trợ
-                        <span class="text-primary" th:text="'#' + ${request.id}"></span>
+                        <span th:classappend="${request.victim == null} ? 'text-white' : 'text-primary'"
+                              th:text="'#' + ${request.id}"></span>
+                        <span th:if="${request.victim == null}"
+                              class="badge bg-white text-danger ms-2 fs-6">KHẨN CẤP / SOS</span>
                     </h4>
                     <div>
                         <th:block th:replace="~{fragments/status-badge :: badge(${request.status})}"></th:block>
                     </div>
+                </div>
+                <!-- Banner thông tin SOS (tên + SĐT) ngay đầu card khi victim = null -->
+                <div th:if="${request.victim == null}"
+                     class="alert alert-danger m-3 mb-0 d-flex align-items-center gap-3 py-2">
+                    <span class="fw-bold">Người gửi SOS:</span>
+                    <span th:text="${request.guestName}"></span>
+                    <a th:if="${request.guestPhone != null}"
+                       th:href="'tel:' + ${request.guestPhone}"
+                       th:text="'📞 ' + ${request.guestPhone}"
+                       class="btn btn-sm btn-danger text-white text-decoration-none ms-auto"></a>
                 </div>
                 <div class="card-body p-4">
                     <div class="row g-3">
@@ -47,8 +63,10 @@
 
                         <!-- Loại nhu cầu / Số người / Mức khẩn cấp -->
                         <div class="col-md-4">
-                            <label class="text-muted small">Loại nhu cầu:</label>
-                            <div class="fw-semibold fs-6" th:text="${request.needType}"></div>
+                            <label class="text-muted small d-block">Loại nhu cầu:</label>
+                            <div>
+                                <th:block th:replace="~{fragments/need-badges :: badges(${request.needTypes})}"></th:block>
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <label class="text-muted small">Số người cần cứu trợ:</label>
@@ -62,10 +80,7 @@
                                                        (request.urgencyLevel.name() == 'HIGH'     ? 'bg-warning text-dark' :
                                                        (request.urgencyLevel.name() == 'MEDIUM'   ? 'bg-info text-dark' :
                                                                                                     'bg-secondary'))}"
-                                      th:text="${request.urgencyLevel.name() == 'CRITICAL' ? '🔴 CRITICAL' :
-                                                (request.urgencyLevel.name() == 'HIGH'     ? '🟠 HIGH' :
-                                                (request.urgencyLevel.name() == 'MEDIUM'   ? '🟡 MEDIUM' :
-                                                                                             '🟢 LOW'))}">
+                                      th:text="${request.urgencyLevel.label}">
                                 </span>
                             </div>
                         </div>

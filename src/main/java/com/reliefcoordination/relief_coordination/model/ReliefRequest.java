@@ -18,9 +18,17 @@ public class ReliefRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    // optional = true: cho phép null khi là yêu cầu SOS khẩn cấp (không cần đăng nhập)
+    @ManyToOne(optional = true)
     @JoinColumn(name = "victim_id")
     private Victim victim;
+
+    // Thông tin khách vãng lai (SOS): tên và SĐT thay thế victim
+    @Column(length = 100)
+    private String guestName;
+
+    @Column(length = 20)
+    private String guestPhone;
 
     @ManyToOne
     @JoinColumn(name = "rescuer_id")
@@ -32,9 +40,11 @@ public class ReliefRequest {
     private Double latitude;
     private Double longitude;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "relief_request_need_types", joinColumns = @JoinColumn(name = "request_id"))
+    @Column(name = "need_type")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private NeedType needType;
+    private java.util.Set<NeedType> needTypes = new java.util.HashSet<>();
 
     @Column(nullable = false)
     private Integer numberOfPeople;

@@ -45,8 +45,10 @@
 
                         <!-- Thông tin cứu trợ -->
                         <div class="col-md-4">
-                            <label class="text-muted small">Loại nhu cầu:</label>
-                            <div class="fw-semibold fs-6" th:text="${request.needType}"></div>
+                            <label class="text-muted small d-block">Loại nhu cầu:</label>
+                            <div>
+                                <th:block th:replace="~{fragments/need-badges :: badges(${request.needTypes})}"></th:block>
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <label class="text-muted small">Số người:</label>
@@ -57,7 +59,7 @@
                             <div>
                                 <span class="badge"
                                       th:classappend="${request.urgencyLevel.name() == 'CRITICAL' ? 'bg-danger' : (request.urgencyLevel.name() == 'HIGH' ? 'bg-warning text-dark' : 'bg-info text-dark')}"
-                                      th:text="${request.urgencyLevel}">
+                                      th:text="${request.urgencyLevel.label}">
                                 </span>
                             </div>
                         </div>

@@ -127,6 +127,127 @@ class RescuerRequestServiceTest {
     }
 
     // -----------------------------------------------------------------------
+    // Test 5 (mới): Phân trang & sắp xếp mặc định: khẩn cấp cao -> thấp, cùng mức cũ nhất trước
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemYeuCauCho_sapXepMacDinh_khanCapCaoXuongThap_cungMucThiCuNhatTruoc() {
+        Victim victim = createVictim("sort_default@test.com");
+
+        ReliefRequest req1 = createSentRequestWithCreatedAt(victim, UrgencyLevel.CRITICAL, "Hà Nội", java.time.LocalDateTime.now().minusHours(2));
+        ReliefRequest req2 = createSentRequestWithCreatedAt(victim, UrgencyLevel.CRITICAL, "Hà Nội", java.time.LocalDateTime.now().minusHours(1));
+        ReliefRequest reqLow = createSentRequestWithCreatedAt(victim, UrgencyLevel.LOW, "Hà Nội", java.time.LocalDateTime.now().minusHours(3));
+
+        org.springframework.data.domain.Page<ReliefRequest> page =
+                rescuerRequestService.timKiemYeuCauChoTheoString("Hà Nội", null, null, null, 0);
+
+        assertThat(page.getContent()).isNotEmpty();
+        List<Long> ids = page.getContent().stream().map(ReliefRequest::getId).toList();
+
+        // req1 (CRITICAL cũ hơn) phải đứng trước req2 (CRITICAL mới hơn)
+        assertThat(ids.indexOf(req1.getId())).isLessThan(ids.indexOf(req2.getId()));
+        // req2 (CRITICAL) phải đứng trước reqLow (LOW)
+        assertThat(ids.indexOf(req2.getId())).isLessThan(ids.indexOf(reqLow.getId()));
+    }
+
+    // -----------------------------------------------------------------------
+    // Test 6 (mới): Sắp xếp mức khẩn cấp: thấp -> cao
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemYeuCauCho_sapXepKhanCapThapLenCao() {
+        Victim victim = createVictim("sort_asc@test.com");
+
+        ReliefRequest reqLow = createSentRequestWithCreatedAt(victim, UrgencyLevel.LOW, "Đà Lạt", java.time.LocalDateTime.now().minusHours(2));
+        ReliefRequest reqCrit = createSentRequestWithCreatedAt(victim, UrgencyLevel.CRITICAL, "Đà Lạt", java.time.LocalDateTime.now().minusHours(1));
+
+        org.springframework.data.domain.Page<ReliefRequest> page =
+                rescuerRequestService.timKiemYeuCauChoTheoString("Đà Lạt", null, null, "urgency_asc", 0);
+
+        List<Long> ids = page.getContent().stream().map(ReliefRequest::getId).toList();
+        assertThat(ids.indexOf(reqLow.getId())).isLessThan(ids.indexOf(reqCrit.getId()));
+    }
+
+    // -----------------------------------------------------------------------
+    // Test 7 (mới): Sắp xếp thời gian tạo: mới nhất trước & cũ nhất trước
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemYeuCauCho_sapXepThoiGianTao() {
+        Victim victim = createVictim("sort_time@test.com");
+
+        ReliefRequest reqOld = createSentRequestWithCreatedAt(victim, UrgencyLevel.MEDIUM, "Huế", java.time.LocalDateTime.now().minusHours(5));
+        ReliefRequest reqNew = createSentRequestWithCreatedAt(victim, UrgencyLevel.CRITICAL, "Huế", java.time.LocalDateTime.now().minusHours(1));
+
+        // Mới nhất trước: reqNew trước reqOld
+        org.springframework.data.domain.Page<ReliefRequest> pageDesc =
+                rescuerRequestService.timKiemYeuCauChoTheoString("Huế", null, null, "created_desc", 0);
+        List<Long> idsDesc = pageDesc.getContent().stream().map(ReliefRequest::getId).toList();
+        assertThat(idsDesc.indexOf(reqNew.getId())).isLessThan(idsDesc.indexOf(reqOld.getId()));
+
+        // Cũ nhất trước: reqOld trước reqNew
+        org.springframework.data.domain.Page<ReliefRequest> pageAsc =
+                rescuerRequestService.timKiemYeuCauChoTheoString("Huế", null, null, "created_asc", 0);
+        List<Long> idsAsc = pageAsc.getContent().stream().map(ReliefRequest::getId).toList();
+        assertThat(idsAsc.indexOf(reqOld.getId())).isLessThan(idsAsc.indexOf(reqNew.getId()));
+    }
+
+    // -----------------------------------------------------------------------
+    // Test 8 (mới): Lọc theo NeedType
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemYeuCauCho_locTheoNeedType() {
+        Victim victim = createVictim("filter_need@test.com");
+
+        ReliefRequest reqFood = createSentRequestWithNeed(victim, java.util.Set.of(NeedType.FOOD), "Hải Phòng");
+        ReliefRequest reqWater = createSentRequestWithNeed(victim, java.util.Set.of(NeedType.WATER), "Hải Phòng");
+
+        org.springframework.data.domain.Page<ReliefRequest> page =
+                rescuerRequestService.timKiemYeuCauChoTheoString("Hải Phòng", "WATER", null, "urgency_desc", 0);
+
+        List<Long> ids = page.getContent().stream().map(ReliefRequest::getId).toList();
+        assertThat(ids).contains(reqWater.getId());
+        assertThat(ids).doesNotContain(reqFood.getId());
+    }
+
+    // -----------------------------------------------------------------------
+    // Test 9 (mới): Yêu cầu SOS của khách vãng lai (victim = null) hoạt động bình thường
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemYeuCauCho_sosKhach_hoatDongBinhThuong() {
+        ReliefRequest guestSos = new ReliefRequest();
+        guestSos.setVictim(null);
+        guestSos.setGuestName("Nguyen Van Khach");
+        guestSos.setGuestPhone("0911222333");
+        guestSos.setLocation("Nha Trang");
+        guestSos.setNeedTypes(java.util.Set.of(NeedType.RESCUE));
+        guestSos.setNumberOfPeople(5);
+        guestSos.setUrgencyLevel(UrgencyLevel.CRITICAL);
+        guestSos.setDescription("Can ung cuu gap");
+        guestSos = reliefRequestRepository.save(guestSos);
+
+        org.springframework.data.domain.Page<ReliefRequest> page =
+                rescuerRequestService.timKiemYeuCauChoTheoString("Nha Trang", "RESCUE", "CRITICAL", "urgency_desc", 0);
+
+        List<Long> ids = page.getContent().stream().map(ReliefRequest::getId).toList();
+        assertThat(ids).contains(guestSos.getId());
+    }
+
+    // -----------------------------------------------------------------------
+    // Test 10 (mới): Tham số không hợp lệ fallback về mặc định không lỗi 500
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemYeuCauCho_thamSoKhongHopLe_fallbackKhongLoi() {
+        org.springframework.data.domain.Page<ReliefRequest> page =
+                rescuerRequestService.timKiemYeuCauChoTheoString("Hà Nội", "KHONG_TON_TAI", "KHONG_HOP_LE", "sort_bua_bai", -1);
+
+        assertThat(page).isNotNull();
+    }
+
+    // -----------------------------------------------------------------------
     // Helpers
     // -----------------------------------------------------------------------
 
@@ -158,9 +279,37 @@ class RescuerRequestServiceTest {
         ReliefRequest request = new ReliefRequest();
         request.setVictim(victim);
         request.setLocation(location);
-        request.setNeedType(NeedType.FOOD);
+        request.setNeedTypes(java.util.Set.of(NeedType.FOOD));
         request.setNumberOfPeople(4);
         request.setUrgencyLevel(urgencyLevel);
+        request.setDescription("Can ho tro khan cap");
+        return reliefRequestRepository.save(request);
+    }
+
+    private ReliefRequest createSentRequestWithCreatedAt(Victim victim,
+                                                         UrgencyLevel urgencyLevel,
+                                                         String location,
+                                                         java.time.LocalDateTime createdAt) {
+        ReliefRequest request = new ReliefRequest();
+        request.setVictim(victim);
+        request.setLocation(location);
+        request.setNeedTypes(java.util.Set.of(NeedType.FOOD));
+        request.setNumberOfPeople(4);
+        request.setUrgencyLevel(urgencyLevel);
+        request.setDescription("Can ho tro khan cap");
+        request.setCreatedAt(createdAt);
+        return reliefRequestRepository.save(request);
+    }
+
+    private ReliefRequest createSentRequestWithNeed(Victim victim,
+                                                    java.util.Set<NeedType> needTypes,
+                                                    String location) {
+        ReliefRequest request = new ReliefRequest();
+        request.setVictim(victim);
+        request.setLocation(location);
+        request.setNeedTypes(needTypes);
+        request.setNumberOfPeople(4);
+        request.setUrgencyLevel(UrgencyLevel.HIGH);
         request.setDescription("Can ho tro khan cap");
         return reliefRequestRepository.save(request);
     }

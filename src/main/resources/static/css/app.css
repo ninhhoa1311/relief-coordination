@@ -1,0 +1,627 @@
+/* ==========================================================================
+   CẦN CỨU TRỢ — HỆ THỐNG THIẾT KẾ DÙNG CHUNG (app.css)
+   ========================================================================== */
+
+:root {
+    /* Bảng màu chính */
+    --color-navy: #0f1b2d;
+    --color-navy-dark: #0a121e;
+    --color-navy-light: #1b2d47;
+    --color-navy-muted: #2d4059;
+
+    --color-red: #c8102e;
+    --color-red-dark: #a10c24;
+    --color-red-light: #fff5f5;
+    --color-red-border: rgba(200, 16, 46, 0.18);
+
+    --color-green: #16a34a;
+    --color-green-dark: #15803d;
+    --color-green-light: #f0fdf4;
+    --color-green-border: rgba(22, 163, 74, 0.18);
+
+    --color-blue: #2563eb;
+    --color-blue-dark: #1d4ed8;
+    --color-blue-light: #eff6ff;
+    --color-blue-border: rgba(37, 99, 235, 0.18);
+
+    /* Màu nền và chữ */
+    --bg-page: #f5f1ea;
+    --bg-card: #ffffff;
+    --text-primary: #0f1b2d;
+    --text-muted: #64748b;
+    --border-subtle: rgba(15, 27, 45, 0.08);
+
+    /* Bo góc */
+    --radius-card: 22px;
+    --radius-sm: 12px;
+    --radius-pill: 50rem;
+
+    /* Đổ bóng */
+    --shadow-sm: 0 4px 12px rgba(15, 27, 45, 0.04);
+    --shadow-card: 0 10px 28px rgba(15, 27, 45, 0.06);
+    --shadow-hover: 0 16px 36px rgba(15, 27, 45, 0.12);
+
+    /* Typography */
+    --font-main: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Base styling */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main.app-content {
+    flex: 1 0 auto;
+}
+
+/* ==========================================================================
+   NAVBAR DÙNG CHUNG (.app-navbar)
+   ========================================================================== */
+.app-navbar {
+    background-color: var(--color-navy) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.3s ease;
+}
+
+.app-navbar .navbar-brand {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    color: #ffffff !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.app-navbar .navbar-brand .logo-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+}
+
+.app-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+    padding: 0.5rem 0.95rem !important;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.app-navbar .nav-link:hover {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.app-navbar .nav-link.active {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.14);
+    font-weight: 600;
+}
+
+.app-navbar .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.2);
+    padding: 0.4rem 0.65rem;
+}
+
+.app-navbar .navbar-toggler:focus {
+    box-shadow: 0 0 0 0.2rem rgba(200, 16, 46, 0.25);
+}
+
+.app-navbar .user-badge {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.875rem;
+    font-weight: 500;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   CARDS (.app-card & BIẾN THỂ)
+   ========================================================================== */
+.app-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-card);
+    padding: 2rem;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.app-card:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+.app-card-lift:hover {
+    transform: translateY(-4px);
+}
+
+/* Biến thể pastel */
+.app-card--blue {
+    background: linear-gradient(180deg, #f0f7ff 0%, #ffffff 65%);
+    border-color: var(--color-blue-border);
+}
+.app-card--blue:hover {
+    border-color: rgba(37, 99, 235, 0.4);
+}
+
+.app-card--green {
+    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 65%);
+    border-color: var(--color-green-border);
+}
+.app-card--green:hover {
+    border-color: rgba(22, 163, 74, 0.4);
+}
+
+.app-card--red {
+    background: linear-gradient(180deg, #fff5f5 0%, #ffffff 65%);
+    border-color: var(--color-red-border);
+}
+.app-card--red:hover {
+    border-color: rgba(200, 16, 46, 0.4);
+}
+
+/* ==========================================================================
+   ICON TRÒN NỔI BẬT (.app-icon-circle)
+   ========================================================================== */
+.app-icon-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--color-navy) 0%, #1e3a5f 100%);
+    box-shadow: 0 8px 18px rgba(15, 27, 45, 0.18);
+    margin-bottom: 1.25rem;
+    transition: transform 0.25s ease;
+}
+
+.app-card:hover .app-icon-circle {
+    transform: scale(1.08);
+}
+
+.app-icon-circle--blue {
+    background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
+}
+
+.app-icon-circle--green {
+    background: linear-gradient(135deg, #15803d 0%, #22c55e 100%);
+    box-shadow: 0 8px 18px rgba(22, 163, 74, 0.28);
+}
+
+.app-icon-circle--red {
+    background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
+    box-shadow: 0 8px 18px rgba(200, 16, 46, 0.28);
+}
+
+/* ==========================================================================
+   TIÊU ĐỀ SECTION (.app-section-title & .app-section-subtitle)
+   ========================================================================== */
+.app-section-title {
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--color-navy);
+    letter-spacing: 0.75px;
+    font-size: 1.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.app-section-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    max-width: 620px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 2.75rem;
+}
+
+/* ==========================================================================
+   THẺ SỐ LIỆU (.app-stat-card)
+   ========================================================================== */
+.app-stat-card {
+    background-color: var(--color-red-light);
+    border: 1px solid var(--color-red-border);
+    border-top: 4px solid var(--color-red);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-sm);
+    padding: 1.6rem 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+}
+
+.app-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card);
+}
+
+.app-stat-card .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: rgba(200, 16, 46, 0.12);
+    color: var(--color-red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.85rem;
+    flex-shrink: 0;
+}
+
+.app-stat-card .stat-content {
+    flex: 1;
+}
+
+.app-stat-card .stat-num {
+    font-size: 2.35rem;
+    font-weight: 800;
+    color: var(--color-navy);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+
+.app-stat-card .stat-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #4b5563;
+    margin-top: 0.3rem;
+}
+
+/* ==========================================================================
+   NÚT BẤM (BUTTONS)
+   ========================================================================== */
+.btn-pill {
+    border-radius: var(--radius-pill);
+    padding: 0.65rem 1.65rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.btn-pill:hover {
+    transform: translateY(-1px);
+}
+
+.btn-pill-lg {
+    padding: 0.85rem 2.25rem;
+    font-size: 1.1rem;
+}
+
+.btn-navy {
+    background-color: var(--color-navy);
+    color: #ffffff;
+    border: 1px solid var(--color-navy);
+}
+.btn-navy:hover {
+    background-color: var(--color-navy-dark);
+    color: #ffffff;
+    border-color: var(--color-navy-dark);
+}
+
+/* Nút SOS khẩn cấp */
+.btn-sos {
+    background: linear-gradient(135deg, #c8102e 0%, #e52445 100%);
+    color: #ffffff !important;
+    border: 1px solid #c8102e;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(200, 16, 46, 0.35);
+    animation: pulse-sos 2s infinite;
+}
+
+.btn-sos:hover {
+    background: linear-gradient(135deg, #a10c24 0%, #c8102e 100%);
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(200, 16, 46, 0.5);
+}
+
+@keyframes pulse-sos {
+    0% {
+        box-shadow: 0 0 0 0 rgba(200, 16, 46, 0.5);
+    }
+    70% {
+        box-shadow: 0 0 0 12px rgba(200, 16, 46, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(200, 16, 46, 0);
+    }
+}
+
+/* ==========================================================================
+   QUY TRÌNH 5 BƯỚC (.process-steps)
+   ========================================================================== */
+.process-step-card {
+    background: var(--bg-card);
+    border-radius: 18px;
+    border: 1px solid var(--border-subtle);
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    height: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.process-step-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card);
+}
+
+.process-step-num {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-navy);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 1.15rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.9rem;
+    box-shadow: 0 4px 10px rgba(15, 27, 45, 0.2);
+}
+
+.process-step-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--color-navy);
+    margin-bottom: 0.4rem;
+}
+
+.process-step-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0;
+    line-height: 1.45;
+}
+
+/* ==========================================================================
+   FOOTER CHUNG (.app-footer)
+   ========================================================================== */
+.app-footer {
+    background-color: var(--color-navy);
+    color: #cbd5e1;
+    padding: 3.5rem 0 1.75rem;
+    margin-top: 4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-footer h5 {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
+}
+
+.app-footer a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.app-footer a:hover {
+    color: #ffffff;
+}
+
+.app-footer .footer-links {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.app-footer .footer-links li {
+    margin-bottom: 0.65rem;
+}
+
+.app-footer .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 1.5rem;
+    margin-top: 2.5rem;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+/* ==========================================================================
+   NÚT LÊN ĐẦU TRANG (.scroll-top)
+   ========================================================================== */
+.scroll-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--color-navy);
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 6px 18px rgba(15, 27, 45, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    cursor: pointer;
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: all 0.3s ease;
+}
+
+.scroll-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.scroll-top:hover {
+    background-color: var(--color-red);
+    color: #ffffff;
+    border-color: var(--color-red);
+    transform: translateY(-3px);
+}
+
+/* ==========================================================================
+   TƯƠNG THÍCH TRANG CON & KHÔNG VỠ GIAO DIỆN
+   ========================================================================== */
+/* Form controls */
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    padding: 0.65rem 0.95rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--color-blue);
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.18);
+}
+
+/* Giữ form trong card đẹp mắt trên các trang public */
+.auth-container {
+    min-height: calc(100vh - 180px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 460px;
+}
+
+/* Bảng dữ liệu */
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+    border-color: var(--border-subtle);
+}
+
+.table th {
+    background-color: #f8fafc;
+    color: var(--color-navy);
+    font-weight: 600;
+}
+
+/* Thẻ Bootstrap mặc định trong các trang dashboard */
+.card:not(.app-card):not(.app-stat-card) {
+    border-radius: 16px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 4.5rem 1rem 3.5rem;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 3.25rem;
+    font-weight: 800;
+    color: var(--color-navy);
+    letter-spacing: -1px;
+    margin-bottom: 1rem;
+}
+
+.hero-slogan {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--color-red);
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    max-width: 680px;
+    margin: 0 auto 2.25rem;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (KIỂM TRA BỀ RỘNG 375px)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.35rem;
+    }
+    .hero-slogan {
+        font-size: 1.15rem;
+    }
+    .app-section-title {
+        font-size: 1.45rem;
+    }
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    .hero-actions .btn {
+        width: 100%;
+    }
+    .app-stat-card {
+        padding: 1.25rem;
+    }
+    .app-stat-card .stat-num {
+        font-size: 1.95rem;
+    }
+    .scroll-top {
+        bottom: 1.25rem;
+        right: 1.25rem;
+        width: 42px;
+        height: 42px;
+        font-size: 1.15rem;
+    }
+}
+
+@media (max-width: 375px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    .app-card {
+        padding: 1.25rem 1rem;
+    }
+    .app-navbar .navbar-brand {
+        font-size: 1.15rem;
+    }
+}

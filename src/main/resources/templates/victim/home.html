@@ -61,12 +61,14 @@
                                     </a>
                                 </div>
                             </td>
-                            <td th:text="${req.needType}"></td>
+                            <td>
+                                <th:block th:replace="~{fragments/need-badges :: badges(${req.needTypes})}"></th:block>
+                            </td>
                             <td th:text="${req.numberOfPeople} + ' người'"></td>
                             <td>
                                 <span class="badge"
                                       th:classappend="${req.urgencyLevel.name() == 'CRITICAL' ? 'bg-danger' : (req.urgencyLevel.name() == 'HIGH' ? 'bg-warning text-dark' : 'bg-info text-dark')}"
-                                      th:text="${req.urgencyLevel}">
+                                      th:text="${req.urgencyLevel.label}">
                                 </span>
                             </td>
                             <td class="text-muted small"

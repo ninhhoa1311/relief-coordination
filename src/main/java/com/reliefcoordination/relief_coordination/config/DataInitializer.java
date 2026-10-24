@@ -99,8 +99,9 @@ public class DataInitializer implements CommandLineRunner {
         victimRepository.save(victim3);
 
         seedRequests(List.of(victim1, victim2, victim3), List.of(rescuer1, rescuer2));
+        seedSOSRequests();
 
-        System.out.println(">>> Da tao du lieu mau thanh cong <<<");
+        System.out.println(">>> Da tao du lieu mau thanh cong (bao gom 2 yeu cau SOS) <<<");
     }
 
     private void seedRequests(List<Victim> victims, List<Rescuer> rescuers) {
@@ -111,7 +112,7 @@ public class DataInitializer implements CommandLineRunner {
             ReliefRequest request = new ReliefRequest();
             request.setVictim(victims.get(i % victims.size()));
             request.setLocation("Khu vuc " + (i + 1) + ", Quang Nam");
-            request.setNeedType(needTypes[i % needTypes.length]);
+            request.setNeedTypes(new java.util.HashSet<>(java.util.List.of(needTypes[i % needTypes.length], needTypes[(i + 1) % needTypes.length])));
             request.setNumberOfPeople((i % 5) + 1);
             request.setUrgencyLevel(urgencyLevels[i % urgencyLevels.length]);
             request.setDescription("Yeu cau cuu tro mau so " + (i + 1));
@@ -140,5 +141,34 @@ public class DataInitializer implements CommandLineRunner {
         for (int k = 1; k <= FLOW.indexOf(target); k++) {
             request.changeStatus(FLOW.get(k));
         }
+    }
+
+    /** Tao 2 yeu cau SOS mau (victim = null) de demo chuc nang khan cap. */
+    private void seedSOSRequests() {
+        // SOS 1: Chua co GPS, trang thai SENT
+        ReliefRequest sos1 = new ReliefRequest();
+        sos1.setVictim(null);
+        sos1.setGuestName("Nguyen Thi SOS Demo");
+        sos1.setGuestPhone("0911111111");
+        sos1.setUrgencyLevel(UrgencyLevel.CRITICAL);
+        sos1.setNeedTypes(java.util.Set.of(NeedType.RESCUE));
+        sos1.setNumberOfPeople(1);
+        sos1.setLocation("Chua xac dinh (yeu cau SOS)");
+        sos1.setDescription("Yeu cau khan cap (SOS) - lien he qua so dien thoai: 0911111111");
+        reliefRequestRepository.save(sos1);
+
+        // SOS 2: Co GPS (toa do Da Nang), trang thai SENT — de demo link ban do
+        ReliefRequest sos2 = new ReliefRequest();
+        sos2.setVictim(null);
+        sos2.setGuestName("Tran Van Khan Cap");
+        sos2.setGuestPhone("0922222222");
+        sos2.setUrgencyLevel(UrgencyLevel.CRITICAL);
+        sos2.setNeedTypes(java.util.Set.of(NeedType.RESCUE));
+        sos2.setNumberOfPeople(1);
+        sos2.setLatitude(16.0544);
+        sos2.setLongitude(108.2022);
+        sos2.setLocation("Toa do GPS (yeu cau SOS)");
+        sos2.setDescription("Yeu cau khan cap (SOS) - lien he qua so dien thoai: 0922222222");
+        reliefRequestRepository.save(sos2);
     }
 }

@@ -79,7 +79,7 @@ public class VictimRequestService {
 
     private void applyForm(ReliefRequest request, ReliefRequestForm form) {
         request.setLocation(form.getLocation());
-        request.setNeedType(form.getNeedType());
+        request.setNeedTypes(form.getNeedTypes() != null ? new java.util.HashSet<>(form.getNeedTypes()) : new java.util.HashSet<>());
         request.setNumberOfPeople(form.getNumberOfPeople());
         request.setUrgencyLevel(form.getUrgencyLevel());
         request.setDescription(form.getDescription());

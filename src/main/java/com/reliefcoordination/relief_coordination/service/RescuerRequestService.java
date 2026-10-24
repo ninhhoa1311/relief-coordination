@@ -7,6 +7,9 @@ import com.reliefcoordination.relief_coordination.model.RequestStatus;
 import com.reliefcoordination.relief_coordination.model.Rescuer;
 import com.reliefcoordination.relief_coordination.model.UrgencyLevel;
 import com.reliefcoordination.relief_coordination.repository.ReliefRequestRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +40,7 @@ public class RescuerRequestService {
 
     /**
      * Lấy danh sách yêu cầu đang chờ (SENT), sắp xếp theo mức khẩn cấp giảm dần.
+     * Cùng mức khẩn cấp thì xếp tiếp theo thời gian tạo cũ nhất trước.
      */
     @Transactional(readOnly = true)
     public List<ReliefRequest> danhSachDangCho() {
@@ -44,7 +48,7 @@ public class RescuerRequestService {
                 .stream()
                 .sorted(Comparator.comparingInt(
                         (ReliefRequest r) -> URGENCY_PRIORITY.getOrDefault(r.getUrgencyLevel(), 0)
-                ).reversed())
+                ).reversed().thenComparing(ReliefRequest::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
     }
 
@@ -57,9 +61,65 @@ public class RescuerRequestService {
         return danhSachDangCho().stream()
                 .filter(r -> location == null || location.isBlank()
                         || r.getLocation().toLowerCase().contains(location.toLowerCase()))
-                .filter(r -> needType == null || r.getNeedType() == needType)
+                .filter(r -> needType == null || (r.getNeedTypes() != null && r.getNeedTypes().contains(needType)))
                 .filter(r -> urgencyLevel == null || r.getUrgencyLevel() == urgencyLevel)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Phân trang danh sách yêu cầu chờ (SENT) kết hợp lọc và sắp xếp (nhận tham số dạng chuỗi thô).
+     */
+    @Transactional(readOnly = true)
+    public Page<ReliefRequest> timKiemYeuCauChoTheoString(String location,
+                                                          String needTypeStr,
+                                                          String urgencyLevelStr,
+                                                          String sortStr,
+                                                          int page) {
+        NeedType needType = parseEnum(NeedType.class, needTypeStr);
+        UrgencyLevel urgencyLevel = parseEnum(UrgencyLevel.class, urgencyLevelStr);
+        return timKiemYeuCauCho(location, needType, urgencyLevel, sortStr, page);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReliefRequest> timKiemYeuCauCho(String location,
+                                                NeedType needType,
+                                                UrgencyLevel urgencyLevel,
+                                                String sortStr,
+                                                int page) {
+        String cleanLocation = (location != null && !location.isBlank()) ? location.trim() : null;
+        String sort = normalizeSortCho(sortStr);
+
+        int pageNumber = Math.max(0, page);
+        Pageable pageable = PageRequest.of(pageNumber, 10);
+
+        return switch (sort) {
+            case "urgency_asc"  -> reliefRequestRepository.timKiemYeuCauChoUrgencyAsc(cleanLocation, needType, urgencyLevel, pageable);
+            case "created_desc" -> reliefRequestRepository.timKiemYeuCauChoCreatedDesc(cleanLocation, needType, urgencyLevel, pageable);
+            case "created_asc"  -> reliefRequestRepository.timKiemYeuCauChoCreatedAsc(cleanLocation, needType, urgencyLevel, pageable);
+            default             -> reliefRequestRepository.timKiemYeuCauChoUrgencyDesc(cleanLocation, needType, urgencyLevel, pageable);
+        };
+    }
+
+    public String normalizeSortCho(String sortStr) {
+        if (sortStr == null) {
+            return "urgency_desc";
+        }
+        String s = sortStr.trim().toLowerCase();
+        return switch (s) {
+            case "urgency_asc", "created_desc", "created_asc" -> s;
+            default -> "urgency_desc";
+        };
+    }
+
+    private <E extends Enum<E>> E parseEnum(Class<E> enumClass, String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Enum.valueOf(enumClass, value.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 
     /**

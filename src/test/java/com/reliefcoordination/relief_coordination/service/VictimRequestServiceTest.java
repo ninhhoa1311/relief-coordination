@@ -151,7 +151,7 @@ class VictimRequestServiceTest {
     private ReliefRequestForm createSampleForm() {
         ReliefRequestForm form = new ReliefRequestForm();
         form.setLocation("123 Duong Le Loi");
-        form.setNeedType(NeedType.FOOD);
+        form.setNeedTypes(java.util.Set.of(NeedType.FOOD));
         form.setNumberOfPeople(4);
         form.setUrgencyLevel(UrgencyLevel.HIGH);
         form.setDescription("Can thuc pham gap cho 4 nguoi");

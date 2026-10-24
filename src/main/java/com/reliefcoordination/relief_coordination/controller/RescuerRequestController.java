@@ -6,6 +6,7 @@ import com.reliefcoordination.relief_coordination.model.Rescuer;
 import com.reliefcoordination.relief_coordination.model.UrgencyLevel;
 import com.reliefcoordination.relief_coordination.service.CurrentUserService;
 import com.reliefcoordination.relief_coordination.service.RescuerRequestService;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/rescuer")
@@ -31,13 +30,29 @@ public class RescuerRequestController {
         this.currentUserService = currentUserService;
     }
 
-    /** GET /rescuer/home — danh sách yêu cầu SENT, sắp theo khẩn cấp giảm dần. */
+    /** GET /rescuer/home — danh sách yêu cầu SENT, hỗ trợ lọc, sắp xếp và phân trang. */
     @GetMapping("/home")
-    public String home(Authentication authentication, Model model) {
-        List<ReliefRequest> requests = rescuerRequestService.danhSachDangCho();
-        model.addAttribute("requests", requests);
+    public String home(@RequestParam(required = false) String location,
+                       @RequestParam(required = false) String needType,
+                       @RequestParam(required = false) String urgencyLevel,
+                       @RequestParam(required = false) String sort,
+                       @RequestParam(defaultValue = "0") int page,
+                       Authentication authentication,
+                       Model model) {
+        Page<ReliefRequest> requestsPage = rescuerRequestService.timKiemYeuCauChoTheoString(
+                location, needType, urgencyLevel, sort, page);
+
+        model.addAttribute("requestsPage", requestsPage);
+        model.addAttribute("requests", requestsPage.getContent());
         model.addAttribute("needTypes", NeedType.values());
         model.addAttribute("urgencyLevels", UrgencyLevel.values());
+
+        // Giữ lại giá trị filter & sort
+        model.addAttribute("filterLocation", location != null ? location.trim() : "");
+        model.addAttribute("filterNeedType", needType != null ? needType.trim() : "");
+        model.addAttribute("filterUrgencyLevel", urgencyLevel != null ? urgencyLevel.trim() : "");
+        model.addAttribute("filterSort", rescuerRequestService.normalizeSortCho(sort));
+
         model.addAttribute("content", "rescuer/home");
         model.addAttribute("pageTitle", "Danh sách yêu cầu cứu trợ");
         return "fragments/layout";
@@ -46,21 +61,13 @@ public class RescuerRequestController {
     /** GET /rescuer/requests/search — tìm kiếm / lọc yêu cầu SENT. */
     @GetMapping("/requests/search")
     public String search(@RequestParam(required = false) String location,
-                         @RequestParam(required = false) NeedType needType,
-                         @RequestParam(required = false) UrgencyLevel urgencyLevel,
+                         @RequestParam(required = false) String needType,
+                         @RequestParam(required = false) String urgencyLevel,
+                         @RequestParam(required = false) String sort,
+                         @RequestParam(defaultValue = "0") int page,
                          Authentication authentication,
                          Model model) {
-        List<ReliefRequest> requests = rescuerRequestService.timKiem(location, needType, urgencyLevel);
-        model.addAttribute("requests", requests);
-        model.addAttribute("needTypes", NeedType.values());
-        model.addAttribute("urgencyLevels", UrgencyLevel.values());
-        // Giữ lại giá trị filter để hiển thị lại trên form
-        model.addAttribute("filterLocation", location);
-        model.addAttribute("filterNeedType", needType);
-        model.addAttribute("filterUrgencyLevel", urgencyLevel);
-        model.addAttribute("content", "rescuer/home");
-        model.addAttribute("pageTitle", "Tìm kiếm yêu cầu cứu trợ");
-        return "fragments/layout";
+        return home(location, needType, urgencyLevel, sort, page, authentication, model);
     }
 
     /** GET /rescuer/requests/{id} — xem chi tiết yêu cầu. */

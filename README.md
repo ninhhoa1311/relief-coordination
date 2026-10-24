@@ -1,6 +1,7 @@
-# Website điều phối cứu trợ thiên tai
+# Cần cứu trợ — Website điều phối cứu trợ khẩn cấp
 
 Ứng dụng web kết nối người cần cứu trợ (Victim), người cứu trợ (Rescuer) và quản trị viên (Admin). Victim gửi yêu cầu kèm vị trí; Rescuer lọc, nhận và cập nhật trạng thái; Admin giám sát tài khoản, yêu cầu và thống kê dạng thẻ số.
+
 
 Đặc tả đầy đủ: [docs/SPEC.md](docs/SPEC.md). Kiến trúc hiện tại: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 

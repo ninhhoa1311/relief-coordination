@@ -1,9 +1,13 @@
 package com.reliefcoordination.relief_coordination.controller;
 
+import com.reliefcoordination.relief_coordination.model.NeedType;
 import com.reliefcoordination.relief_coordination.model.ReliefRequest;
+import com.reliefcoordination.relief_coordination.model.RequestStatus;
 import com.reliefcoordination.relief_coordination.model.Rescuer;
+import com.reliefcoordination.relief_coordination.model.UrgencyLevel;
 import com.reliefcoordination.relief_coordination.service.CurrentUserService;
 import com.reliefcoordination.relief_coordination.service.RescuerTaskService;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -28,12 +33,42 @@ public class RescuerTaskController {
         this.currentUserService = currentUserService;
     }
 
-    /** GET /rescuer/tasks — danh sách nhiệm vụ đã nhận của Rescuer hiện tại. */
+    /** GET /rescuer/tasks — danh sách nhiệm vụ của Rescuer, hỗ trợ lọc, sắp xếp và phân trang. */
     @GetMapping("/tasks")
-    public String tasks(Authentication authentication, Model model) {
+    public String tasks(@RequestParam(required = false) String status,
+                        @RequestParam(required = false) String urgencyLevel,
+                        @RequestParam(required = false) String needType,
+                        @RequestParam(required = false) String location,
+                        @RequestParam(required = false) String sort,
+                        @RequestParam(defaultValue = "0") int page,
+                        Authentication authentication,
+                        Model model) {
         Rescuer rescuer = currentUserService.getCurrentRescuer(authentication);
-        List<ReliefRequest> tasks = rescuerTaskService.nhiemVuCuaToi(rescuer);
-        model.addAttribute("tasks", tasks);
+        Page<ReliefRequest> tasksPage = rescuerTaskService.timKiemNhiemVuTheoString(
+                rescuer, status, urgencyLevel, needType, location, sort, page);
+
+        model.addAttribute("tasksPage", tasksPage);
+        model.addAttribute("tasks", tasksPage.getContent());
+
+        // Danh sách trạng thái nhiệm vụ cho dropdown lọc
+        List<RequestStatus> taskStatuses = List.of(
+                RequestStatus.ACCEPTED,
+                RequestStatus.PROCESSING,
+                RequestStatus.COMPLETED,
+                RequestStatus.CONFIRMED,
+                RequestStatus.CANCELLED
+        );
+        model.addAttribute("taskStatuses", taskStatuses);
+        model.addAttribute("urgencyLevels", UrgencyLevel.values());
+        model.addAttribute("needTypes", NeedType.values());
+
+        // Giữ lại giá trị filter & sort
+        model.addAttribute("filterStatus", status != null ? status.trim() : "");
+        model.addAttribute("filterUrgencyLevel", urgencyLevel != null ? urgencyLevel.trim() : "");
+        model.addAttribute("filterNeedType", needType != null ? needType.trim() : "");
+        model.addAttribute("filterLocation", location != null ? location.trim() : "");
+        model.addAttribute("filterSort", rescuerTaskService.normalizeSortNhiemVu(sort));
+
         model.addAttribute("content", "rescuer/tasks");
         model.addAttribute("pageTitle", "Nhiệm vụ của tôi");
         return "fragments/layout";

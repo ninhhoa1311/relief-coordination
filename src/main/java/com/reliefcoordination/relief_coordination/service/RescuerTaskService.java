@@ -1,10 +1,15 @@
 package com.reliefcoordination.relief_coordination.service;
 
 import com.reliefcoordination.relief_coordination.exception.ResourceNotFoundException;
+import com.reliefcoordination.relief_coordination.model.NeedType;
 import com.reliefcoordination.relief_coordination.model.ReliefRequest;
 import com.reliefcoordination.relief_coordination.model.RequestStatus;
 import com.reliefcoordination.relief_coordination.model.Rescuer;
+import com.reliefcoordination.relief_coordination.model.UrgencyLevel;
 import com.reliefcoordination.relief_coordination.repository.ReliefRequestRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +30,73 @@ public class RescuerTaskService {
     @Transactional(readOnly = true)
     public List<ReliefRequest> nhiemVuCuaToi(Rescuer rescuer) {
         return reliefRequestRepository.findByRescuer(rescuer);
+    }
+
+    /**
+     * Phân trang danh sách nhiệm vụ của Rescuer kết hợp lọc và sắp xếp (nhận tham số dạng chuỗi thô).
+     */
+    @Transactional(readOnly = true)
+    public Page<ReliefRequest> timKiemNhiemVuTheoString(Rescuer rescuer,
+                                                        String statusStr,
+                                                        String urgencyLevelStr,
+                                                        String needTypeStr,
+                                                        String location,
+                                                        String sortStr,
+                                                        int page) {
+        if (rescuer == null) {
+            throw new IllegalArgumentException("Rescuer không được null");
+        }
+        RequestStatus status = parseEnum(RequestStatus.class, statusStr);
+        UrgencyLevel urgencyLevel = parseEnum(UrgencyLevel.class, urgencyLevelStr);
+        NeedType needType = parseEnum(NeedType.class, needTypeStr);
+        return timKiemNhiemVu(rescuer, status, urgencyLevel, needType, location, sortStr, page);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReliefRequest> timKiemNhiemVu(Rescuer rescuer,
+                                              RequestStatus status,
+                                              UrgencyLevel urgencyLevel,
+                                              NeedType needType,
+                                              String location,
+                                              String sortStr,
+                                              int page) {
+        if (rescuer == null) {
+            throw new IllegalArgumentException("Rescuer không được null");
+        }
+        String cleanLocation = (location != null && !location.isBlank()) ? location.trim() : null;
+        String sort = normalizeSortNhiemVu(sortStr);
+
+        int pageNumber = Math.max(0, page);
+        Pageable pageable = PageRequest.of(pageNumber, 10);
+
+        return switch (sort) {
+            case "urgency_asc"   -> reliefRequestRepository.timKiemNhiemVuUrgencyAsc(rescuer, status, needType, urgencyLevel, cleanLocation, pageable);
+            case "accepted_desc" -> reliefRequestRepository.timKiemNhiemVuAcceptedDesc(rescuer, status, needType, urgencyLevel, cleanLocation, pageable);
+            case "accepted_asc"  -> reliefRequestRepository.timKiemNhiemVuAcceptedAsc(rescuer, status, needType, urgencyLevel, cleanLocation, pageable);
+            default              -> reliefRequestRepository.timKiemNhiemVuDefault(rescuer, status, needType, urgencyLevel, cleanLocation, pageable);
+        };
+    }
+
+    public String normalizeSortNhiemVu(String sortStr) {
+        if (sortStr == null) {
+            return "urgency_desc";
+        }
+        String s = sortStr.trim().toLowerCase();
+        return switch (s) {
+            case "urgency_asc", "accepted_desc", "accepted_asc" -> s;
+            default -> "urgency_desc";
+        };
+    }
+
+    private <E extends Enum<E>> E parseEnum(Class<E> enumClass, String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Enum.valueOf(enumClass, value.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 
     /**

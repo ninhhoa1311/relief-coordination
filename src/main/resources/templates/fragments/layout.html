@@ -7,27 +7,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title th:text="${pageTitle} ?: 'Cứu trợ thiên tai'">
-        Cứu trợ thiên tai
+    <title th:text="${pageTitle} ?: 'Cần cứu trợ'">
+        Cần cứu trợ
     </title>
 
+    <!-- Google Fonts: Be Vietnam Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- App Design System -->
+    <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
+<nav th:fragment="navbar" class="navbar navbar-expand-lg app-navbar sticky-top">
+    <div class="container">
 
         <a class="navbar-brand" th:href="@{/home}">
-            Cứu trợ thiên tai
+            <svg class="logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="18" cy="18" r="16" fill="#c8102e" stroke="#ffffff" stroke-width="1.5"/>
+                <circle cx="18" cy="18" r="7.5" fill="#0f1b2d" stroke="#ffffff" stroke-width="1.5"/>
+                <path d="M15 2.2 L21 2.2 L20.2 10.7 L15.8 10.7 Z" fill="#ffffff"/>
+                <path d="M15 33.8 L21 33.8 L20.2 25.3 L15.8 25.3 Z" fill="#ffffff"/>
+                <path d="M2.2 15 L2.2 21 L10.7 20.2 L10.7 15.8 Z" fill="#ffffff"/>
+                <path d="M33.8 15 L33.8 21 L25.3 20.2 L25.3 15.8 Z" fill="#ffffff"/>
+                <path d="M18 13.5 C16.5 11.5 13.5 12.5 13.5 15 C13.5 18 18 21.5 18 21.5 C18 21.5 22.5 18 22.5 15 C22.5 12.5 19.5 11.5 18 13.5 Z" fill="#ff4d6d"/>
+            </svg>
+            <span>Cần cứu trợ</span>
         </a>
 
         <button class="navbar-toggler" type="button"
                 data-bs-toggle="collapse" data-bs-target="#mainNav"
-                aria-controls="mainNav" aria-expanded="false" aria-label="Mở menu">
-            <span class="navbar-toggler-icon"></span>
+                aria-controls="mainNav" aria-expanded="false" aria-label="Mở menu điều hướng">
+            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="mainNav">
@@ -42,33 +62,130 @@
             <th:block sec:authorize="hasRole('ADMIN')">
                 <ul th:replace="~{fragments/nav-admin :: nav}"></ul>
             </th:block>
+            <th:block sec:authorize="isAnonymous()">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/}">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/register/victim}">Tôi cần cứu trợ</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/register/rescuer}">Tôi là người cứu trợ</a></li>
+                </ul>
+            </th:block>
 
-            <div class="d-flex align-items-center">
-                <span class="navbar-text text-light me-3"
-                      sec:authentication="name">
-                </span>
+            <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/emergency}" class="btn btn-sos btn-pill btn-sm text-white">
+                        <span>🆘 KHẨN CẤP</span>
+                    </a>
+                    <a th:href="@{/login}" class="btn btn-outline-light btn-pill btn-sm">
+                        <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+                    </a>
+                </th:block>
 
-                <form th:action="@{/logout}" method="post">
-                    <button type="submit"
-                            class="btn btn-outline-light btn-sm">
-                        Đăng xuất
-                    </button>
-                </form>
+                <th:block sec:authorize="isAuthenticated()">
+                    <span class="user-badge"
+                          sec:authentication="name"
+                          title="Tài khoản đang đăng nhập">
+                    </span>
+
+                    <form th:action="@{/logout}" method="post" class="d-inline m-0">
+                        <button type="submit"
+                                class="btn btn-outline-light btn-pill btn-sm">
+                            <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                        </button>
+                    </form>
+                </th:block>
             </div>
 
         </div>
     </div>
 </nav>
 
-<div class="container mt-4">
+<main class="app-content container mt-4">
 
     <!-- Nội dung từng trang được nhúng ở đây -->
     <div th:replace="~{${content} :: content}"></div>
 
-</div>
+</main>
+
+<footer th:fragment="footer" class="app-footer">
+    <div class="container">
+        <div class="row g-4 justify-content-between">
+            <div class="col-lg-5 col-md-6">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <svg class="logo-icon" style="width: 32px; height: 32px;" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="18" cy="18" r="16" fill="#c8102e" stroke="#ffffff" stroke-width="1.5"/>
+                        <circle cx="18" cy="18" r="7.5" fill="#0f1b2d" stroke="#ffffff" stroke-width="1.5"/>
+                        <path d="M15 2.2 L21 2.2 L20.2 10.7 L15.8 10.7 Z" fill="#ffffff"/>
+                        <path d="M15 33.8 L21 33.8 L20.2 25.3 L15.8 25.3 Z" fill="#ffffff"/>
+                        <path d="M2.2 15 L2.2 21 L10.7 20.2 L10.7 15.8 Z" fill="#ffffff"/>
+                        <path d="M33.8 15 L33.8 21 L25.3 20.2 L25.3 15.8 Z" fill="#ffffff"/>
+                        <path d="M18 13.5 C16.5 11.5 13.5 12.5 13.5 15 C13.5 18 18 21.5 18 21.5 C18 21.5 22.5 18 22.5 15 C22.5 12.5 19.5 11.5 18 13.5 Z" fill="#ff4d6d"/>
+                    </svg>
+                    <span class="fs-5 fw-bold text-white">Cần cứu trợ</span>
+                </div>
+                <p class="text-secondary mb-2">
+                    Nền tảng kết nối điều phối cứu trợ khẩn cấp, đưa người cần giúp đỡ đến với lực lượng hỗ trợ nhanh nhất và minh bạch nhất.
+                </p>
+                <p class="text-secondary small mb-0">
+                    <i class="bi bi-mortarboard-fill me-1"></i> Dự án môn Lập trình hướng đối tượng
+                </p>
+            </div>
+
+            <div class="col-lg-3 col-md-3 col-6">
+                <h5>Liên kết nhanh</h5>
+                <ul class="footer-links">
+                    <li><a th:href="@{/}"><i class="bi bi-chevron-right me-1 small"></i>Trang chủ</a></li>
+                    <li><a th:href="@{/login}"><i class="bi bi-chevron-right me-1 small"></i>Đăng nhập</a></li>
+                    <li><a th:href="@{/register/victim}"><i class="bi bi-chevron-right me-1 small"></i>Đăng ký cứu trợ</a></li>
+                    <li><a th:href="@{/register/rescuer}"><i class="bi bi-chevron-right me-1 small"></i>Đăng ký đội cứu hộ</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-3 col-6">
+                <h5>Hỗ trợ khẩn cấp</h5>
+                <ul class="footer-links">
+                    <li>
+                        <a th:href="@{/emergency}" class="text-danger fw-bold">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Gửi yêu cầu SOS
+                        </a>
+                    </li>
+                    <li class="text-secondary small mt-2">
+                        Tình huống nguy cấp đến tính mạng, vui lòng gọi thêm các số khẩn cấp quốc gia (112, 114, 115).
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom text-center">
+            <p class="mb-0">
+                &copy; 2026 Cần cứu trợ. Dự án môn Lập trình hướng đối tượng. Tất cả các quyền được bảo lưu.
+            </p>
+        </div>
+    </div>
+</footer>
+
+<button th:fragment="scrollTop" id="scrollTopBtn" class="scroll-top" title="Lên đầu trang" aria-label="Lên đầu trang">
+    <i class="bi bi-arrow-up"></i>
+</button>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
 </script>
+<script>
+    // Xử lý nút Lên đầu trang
+    (function() {
+        const btn = document.getElementById('scrollTopBtn');
+        if (!btn) return;
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 300) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        });
+        btn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    })();
+</script>
 
 </body>
-</html>
+</html>

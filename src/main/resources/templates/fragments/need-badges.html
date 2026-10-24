@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+    <!-- Fragment hiển thị các loại nhu cầu dưới dạng các badge nhỏ -->
+    <th:block th:fragment="badges(types)">
+        <span th:if="${types != null and !types.isEmpty()}" 
+              th:each="t : ${types}" 
+              class="badge text-bg-secondary me-1" 
+              th:text="${t.label}">Thực phẩm</span>
+        <span th:if="${types == null or types.isEmpty()}" 
+              class="text-muted small">—</span>
+    </th:block>
+</body>
+</html>

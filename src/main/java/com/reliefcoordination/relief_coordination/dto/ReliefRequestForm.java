@@ -10,6 +10,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import jakarta.validation.constraints.NotEmpty;
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,15 +22,15 @@ public class ReliefRequestForm {
     @NotBlank(message = "Địa điểm không được để trống")
     private String location;
 
-    @NotNull(message = "Loại nhu cầu không được để trống")
-    private NeedType needType;
+    @NotEmpty(message = "Vui lòng chọn ít nhất một loại nhu cầu")
+    private Set<NeedType> needTypes = new HashSet<>();
 
     @NotNull(message = "Số người không được để trống")
     @Min(value = 1, message = "Số người phải ít nhất là 1")
     private Integer numberOfPeople;
 
     @NotNull(message = "Mức độ khẩn cấp không được để trống")
-    private UrgencyLevel urgencyLevel;
+    private UrgencyLevel urgencyLevel = UrgencyLevel.MEDIUM;
 
     private String description;
 
@@ -38,7 +42,7 @@ public class ReliefRequestForm {
     public static ReliefRequestForm from(ReliefRequest request) {
         ReliefRequestForm form = new ReliefRequestForm();
         form.setLocation(request.getLocation());
-        form.setNeedType(request.getNeedType());
+        form.setNeedTypes(request.getNeedTypes() != null ? new HashSet<>(request.getNeedTypes()) : new HashSet<>());
         form.setNumberOfPeople(request.getNumberOfPeople());
         form.setUrgencyLevel(request.getUrgencyLevel());
         form.setDescription(request.getDescription());

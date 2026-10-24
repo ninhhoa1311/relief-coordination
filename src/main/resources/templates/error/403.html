@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="content" class="text-center py-5">
-    <h1 class="display-4">403</h1>
-    <p class="lead">Bạn không có quyền truy cập trang này.</p>
-    <a th:href="@{/home}" class="btn btn-primary">Về trang chủ</a>
+<div th:fragment="content" class="py-5 d-flex justify-content-center">
+    <div class="app-card text-center shadow-sm" style="max-width: 500px; width: 100%;">
+        <div class="app-icon-circle app-icon-circle--red mx-auto mb-3" style="width: 72px; height: 72px; font-size: 2rem;">
+            <i class="bi bi-shield-slash-fill"></i>
+        </div>
+        <h1 class="display-5 fw-bold text-danger mb-2">403</h1>
+        <h2 class="h5 fw-bold text-navy mb-2">Không có quyền truy cập</h2>
+        <p class="text-muted mb-4">Bạn không được cấp quyền để truy cập trang này hoặc phiên đăng nhập đã hết hạn.</p>
+        <a th:href="@{/home}" class="btn btn-navy btn-pill px-4">
+            <i class="bi bi-house-door me-1"></i> Về trang chủ
+        </a>
+    </div>
 </div>
 </body>
 </html>
+

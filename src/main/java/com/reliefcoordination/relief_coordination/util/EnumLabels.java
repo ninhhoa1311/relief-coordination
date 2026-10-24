@@ -9,29 +9,20 @@ import org.springframework.stereotype.Component;
 public class EnumLabels {
 
     public String needType(NeedType type) {
-        if (type == null) return "";
-        return switch (type) {
-            case FOOD -> "Thực phẩm";
-            case WATER -> "Nước uống";
-            case MEDICAL -> "Y tế";
-            case SHELTER -> "Chỗ ở";
-            case RESCUE -> "Cứu hộ";
-            case OTHER -> "Khác";
-        };
+        if (type == null)
+            return "";
+        return type.getLabel();
     }
 
     public String urgency(UrgencyLevel level) {
-        if (level == null) return "";
-        return switch (level) {
-            case LOW -> "Thấp";
-            case MEDIUM -> "Trung bình";
-            case HIGH -> "Cao";
-            case CRITICAL -> "Khẩn cấp";
-        };
+        if (level == null)
+            return "";
+        return level.getLabel();
     }
 
     public String status(RequestStatus status) {
-        if (status == null) return "";
+        if (status == null)
+            return "";
         return switch (status) {
             case SENT -> "Đã gửi";
             case ACCEPTED -> "Đã tiếp nhận";

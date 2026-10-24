@@ -15,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -143,6 +145,151 @@ class RescuerTaskServiceTest {
     }
 
     // -----------------------------------------------------------------------
+    // Test 6 (mới): Chỉ trả nhiệm vụ của ĐÚNG Rescuer đang đăng nhập
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemNhiemVu_chiTraNhiemVuCuaDungRescuer() {
+        Victim victim = createVictim("task_filter_user@test.com");
+        Rescuer rescuerA = createRescuer("rescuerA_own@test.com");
+        Rescuer rescuerB = createRescuer("rescuerB_own@test.com");
+
+        ReliefRequest reqA = createAcceptedRequest(victim, rescuerA);
+        ReliefRequest reqB = createAcceptedRequest(victim, rescuerB);
+
+        org.springframework.data.domain.Page<ReliefRequest> pageA =
+                rescuerTaskService.timKiemNhiemVuTheoString(rescuerA, null, null, null, null, null, 0);
+
+        List<Long> idsA = pageA.getContent().stream().map(ReliefRequest::getId).toList();
+        assertThat(idsA).contains(reqA.getId());
+        assertThat(idsA).doesNotContain(reqB.getId());
+    }
+
+    // -----------------------------------------------------------------------
+    // Test 7 (mới): Lọc nhiệm vụ theo trạng thái (COMPLETED)
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemNhiemVu_locTheoTrangThai() {
+        Victim victim = createVictim("task_filter_status@test.com");
+        Rescuer rescuer = createRescuer("rescuer_status@test.com");
+
+        ReliefRequest reqAccepted = createAcceptedRequest(victim, rescuer);
+        ReliefRequest reqCompleted = createAcceptedRequest(victim, rescuer);
+        rescuerTaskService.capNhatTrangThaiTiep(reqCompleted.getId(), rescuer); // PROCESSING
+        rescuerTaskService.capNhatTrangThaiTiep(reqCompleted.getId(), rescuer); // COMPLETED
+
+        org.springframework.data.domain.Page<ReliefRequest> page =
+                rescuerTaskService.timKiemNhiemVuTheoString(rescuer, "COMPLETED", null, null, null, null, 0);
+
+        List<Long> ids = page.getContent().stream().map(ReliefRequest::getId).toList();
+        assertThat(ids).contains(reqCompleted.getId());
+        assertThat(ids).doesNotContain(reqAccepted.getId());
+    }
+
+    // -----------------------------------------------------------------------
+    // Test 8 (mới): Sắp xếp mặc định: việc đang làm lên trước, trong đó khẩn cấp cao lên đầu
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemNhiemVu_sapXepMacDinh_viecDangLamLenTruoc_khanCapLenDau() {
+        Victim victim = createVictim("task_sort_default@test.com");
+        Rescuer rescuer = createRescuer("rescuer_sort_def@test.com");
+
+        // Nhiệm vụ 1: COMPLETED, CRITICAL
+        ReliefRequest taskCompleted = createAcceptedRequestWithUrgency(victim, rescuer, UrgencyLevel.CRITICAL);
+        rescuerTaskService.capNhatTrangThaiTiep(taskCompleted.getId(), rescuer); // PROCESSING
+        rescuerTaskService.capNhatTrangThaiTiep(taskCompleted.getId(), rescuer); // COMPLETED
+
+        // Nhiệm vụ 2: ACCEPTED, MEDIUM
+        ReliefRequest taskAcceptedMedium = createAcceptedRequestWithUrgency(victim, rescuer, UrgencyLevel.MEDIUM);
+
+        // Nhiệm vụ 3: PROCESSING, CRITICAL
+        ReliefRequest taskProcessingCritical = createAcceptedRequestWithUrgency(victim, rescuer, UrgencyLevel.CRITICAL);
+        rescuerTaskService.capNhatTrangThaiTiep(taskProcessingCritical.getId(), rescuer); // PROCESSING
+
+        org.springframework.data.domain.Page<ReliefRequest> page =
+                rescuerTaskService.timKiemNhiemVuTheoString(rescuer, null, null, null, null, null, 0);
+
+        List<Long> ids = page.getContent().stream().map(ReliefRequest::getId).toList();
+
+        // Việc đang làm (PROCESSING, ACCEPTED) phải đứng trước việc đã xong (COMPLETED)
+        assertThat(ids.indexOf(taskProcessingCritical.getId())).isLessThan(ids.indexOf(taskCompleted.getId()));
+        assertThat(ids.indexOf(taskAcceptedMedium.getId())).isLessThan(ids.indexOf(taskCompleted.getId()));
+
+        // Trong nhóm đang làm: CRITICAL đứng trước MEDIUM
+        assertThat(ids.indexOf(taskProcessingCritical.getId())).isLessThan(ids.indexOf(taskAcceptedMedium.getId()));
+    }
+
+    // -----------------------------------------------------------------------
+    // Test 9 (mới): Sắp xếp thời gian nhận mới nhất / cũ nhất
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemNhiemVu_sapXepThoiGianNhan() {
+        Victim victim = createVictim("task_sort_time@test.com");
+        Rescuer rescuer = createRescuer("rescuer_sort_time@test.com");
+
+        ReliefRequest reqOld = createAcceptedRequestWithUpdatedAt(
+                victim, rescuer, java.time.LocalDateTime.now().minusHours(3));
+        ReliefRequest reqNew = createAcceptedRequestWithUpdatedAt(
+                victim, rescuer, java.time.LocalDateTime.now().minusHours(1));
+
+        // Mới nhất trước
+        org.springframework.data.domain.Page<ReliefRequest> pageDesc =
+                rescuerTaskService.timKiemNhiemVuTheoString(rescuer, null, null, null, null, "accepted_desc", 0);
+        List<Long> idsDesc = pageDesc.getContent().stream().map(ReliefRequest::getId).toList();
+        assertThat(idsDesc.indexOf(reqNew.getId())).isLessThan(idsDesc.indexOf(reqOld.getId()));
+
+        // Cũ nhất trước
+        org.springframework.data.domain.Page<ReliefRequest> pageAsc =
+                rescuerTaskService.timKiemNhiemVuTheoString(rescuer, null, null, null, null, "accepted_asc", 0);
+        List<Long> idsAsc = pageAsc.getContent().stream().map(ReliefRequest::getId).toList();
+        assertThat(idsAsc.indexOf(reqOld.getId())).isLessThan(idsAsc.indexOf(reqNew.getId()));
+    }
+
+    // -----------------------------------------------------------------------
+    // Test 10 (mới): Nhiệm vụ từ yêu cầu SOS của khách vãng lai (victim = null)
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemNhiemVu_sosKhach_hoatDongBinhThuong() {
+        Rescuer rescuer = createRescuer("rescuer_guest_sos@test.com");
+
+        ReliefRequest guestTask = new ReliefRequest();
+        guestTask.setVictim(null);
+        guestTask.setGuestName("Khach Can Cuu");
+        guestTask.setGuestPhone("0988777666");
+        guestTask.setLocation("Cần Thơ");
+        guestTask.setNeedTypes(java.util.Set.of(NeedType.FOOD));
+        guestTask.setNumberOfPeople(3);
+        guestTask.setUrgencyLevel(UrgencyLevel.HIGH);
+        guestTask.changeStatus(RequestStatus.ACCEPTED);
+        guestTask.setRescuer(rescuer);
+        guestTask = reliefRequestRepository.save(guestTask);
+
+        org.springframework.data.domain.Page<ReliefRequest> page =
+                rescuerTaskService.timKiemNhiemVuTheoString(rescuer, null, null, null, "Cần Thơ", null, 0);
+
+        List<Long> ids = page.getContent().stream().map(ReliefRequest::getId).toList();
+        assertThat(ids).contains(guestTask.getId());
+    }
+
+    // -----------------------------------------------------------------------
+    // Test 11 (mới): Tham số không hợp lệ fallback về mặc định không lỗi 500
+    // -----------------------------------------------------------------------
+
+    @Test
+    void timKiemNhiemVu_thamSoKhongHopLe_fallbackKhongLoi() {
+        Rescuer rescuer = createRescuer("rescuer_invalid_param@test.com");
+
+        org.springframework.data.domain.Page<ReliefRequest> page =
+                rescuerTaskService.timKiemNhiemVuTheoString(rescuer, "INVALID_STATUS", "INVALID_URGENCY", "INVALID_NEED", "Ha Noi", "sort_bua_bai", -1);
+
+        assertThat(page).isNotNull();
+    }
+
+    // -----------------------------------------------------------------------
     // Helpers
     // -----------------------------------------------------------------------
 
@@ -166,15 +313,33 @@ class RescuerTaskServiceTest {
 
     /** Tạo request SENT rồi chuyển sang ACCEPTED và gán rescuer. */
     private ReliefRequest createAcceptedRequest(Victim victim, Rescuer rescuer) {
+        return createAcceptedRequestWithUrgency(victim, rescuer, UrgencyLevel.HIGH);
+    }
+
+    private ReliefRequest createAcceptedRequestWithUrgency(Victim victim, Rescuer rescuer, UrgencyLevel urgencyLevel) {
         ReliefRequest request = new ReliefRequest();
         request.setVictim(victim);
         request.setLocation("123 Duong Le Loi");
-        request.setNeedType(NeedType.FOOD);
+        request.setNeedTypes(java.util.Set.of(NeedType.FOOD));
+        request.setNumberOfPeople(4);
+        request.setUrgencyLevel(urgencyLevel);
+        request.setDescription("Can ho tro khan cap");
+        request.changeStatus(RequestStatus.ACCEPTED);
+        request.setRescuer(rescuer);
+        return reliefRequestRepository.save(request);
+    }
+
+    private ReliefRequest createAcceptedRequestWithUpdatedAt(Victim victim, Rescuer rescuer, java.time.LocalDateTime updatedAt) {
+        ReliefRequest request = new ReliefRequest();
+        request.setVictim(victim);
+        request.setLocation("123 Duong Le Loi");
+        request.setNeedTypes(java.util.Set.of(NeedType.FOOD));
         request.setNumberOfPeople(4);
         request.setUrgencyLevel(UrgencyLevel.HIGH);
         request.setDescription("Can ho tro khan cap");
         request.changeStatus(RequestStatus.ACCEPTED);
         request.setRescuer(rescuer);
+        request.setUpdatedAt(updatedAt);
         return reliefRequestRepository.save(request);
     }
 
@@ -186,7 +351,7 @@ class RescuerTaskServiceTest {
         ReliefRequest request = new ReliefRequest();
         request.setVictim(victim);
         request.setLocation("456 Duong Tran Hung Dao");
-        request.setNeedType(NeedType.WATER);
+        request.setNeedTypes(java.util.Set.of(NeedType.WATER));
         request.setNumberOfPeople(2);
         request.setUrgencyLevel(UrgencyLevel.MEDIUM);
         request.setDescription("Can nuoc uong khan cap");

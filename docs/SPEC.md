@@ -1,4 +1,4 @@
-# SPEC — Website điều phối cứu trợ thiên tai (Relief Coordination)
+# SPEC — Cần cứu trợ — Website điều phối cứu trợ khẩn cấp (Relief Coordination)
 
 > Tài liệu đặc tả duy nhất của dự án. Mọi thành viên và Cursor phải đọc trước khi sửa code.
 > Khi có chỗ mâu thuẫn, mục **0. Quyết định đã chốt** được ưu tiên.
