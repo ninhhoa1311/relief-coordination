@@ -47,6 +47,14 @@ public class RescuerTaskController {
         Page<ReliefRequest> tasksPage = rescuerTaskService.timKiemNhiemVuTheoString(
                 rescuer, status, urgencyLevel, needType, location, sort, page);
 
+        long inProgressCount = rescuerTaskService.demNhiemVuDangLam(rescuer);
+        long completedCount = rescuerTaskService.demNhiemVuHoanThanh(rescuer);
+        long totalTaskCount = rescuerTaskService.demTongNhiemVu(rescuer);
+
+        model.addAttribute("inProgressCount", inProgressCount);
+        model.addAttribute("completedCount", completedCount);
+        model.addAttribute("totalTaskCount", totalTaskCount);
+
         model.addAttribute("tasksPage", tasksPage);
         model.addAttribute("tasks", tasksPage.getContent());
 

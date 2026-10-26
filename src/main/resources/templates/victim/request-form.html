@@ -4,108 +4,153 @@
 <body>
     <div th:fragment="content">
         <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-7">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-primary text-white py-3">
-                        <h4 class="card-title mb-0"
-                            th:text="${isEdit} ? 'Sửa yêu cầu cứu trợ #' + ${requestId} : 'Tạo yêu cầu cứu trợ khẩn cấp'">
-                            Tạo yêu cầu cứu trợ</h4>
-                    </div>
-                    <div class="card-body p-4">
-
-                        <!-- Flash messages -->
-                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show"
-                            role="alert">
-                            <span th:text="${errorMessage}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="app-card">
+                    <!-- Header -->
+                    <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                        <div class="app-icon-circle app-icon-circle--red flex-shrink-0">
+                            <i th:if="${!isEdit}" class="bi bi-heart-pulse-fill"></i>
+                            <i th:if="${isEdit}" class="bi bi-pencil-square"></i>
                         </div>
+                        <div>
+                            <h3 class="mb-1 fw-bold text-navy"
+                                th:text="${isEdit} ? 'Sửa yêu cầu cứu trợ #' + ${requestId} : 'Tạo yêu cầu cứu trợ khẩn cấp'">
+                                Tạo yêu cầu cứu trợ
+                            </h3>
+                            <p class="text-muted small mb-0">Cung cấp thông tin chính xác để lực lượng cứu hộ tiếp cận nhanh nhất</p>
+                        </div>
+                    </div>
 
-                        <form th:action="${isEdit} ? @{/victim/requests/{id}(id=${requestId})} : @{/victim/requests}"
-                            method="post" th:object="${reliefRequestForm}">
+                    <!-- Flash messages -->
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span th:text="${errorMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                    </div>
 
-                            <!-- Địa điểm -->
-                            <div class="mb-3">
-                                <label for="location" class="form-label fw-bold">Địa điểm / Địa chỉ cần cứu trợ <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" id="location" class="form-control" th:field="*{location}"
-                                    th:classappend="${#fields.hasErrors('location')} ? 'is-invalid'"
-                                    placeholder="Ví dụ: Thôn 2, xã Hòa Thịnh, huyện Tây Hòa, Phú Yên (hoặc số nhà, điểm mốc)">
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('location')}"
-                                    th:errors="*{location}"></div>
+                    <form th:action="${isEdit} ? @{/victim/requests/{id}(id=${requestId})} : @{/victim/requests}"
+                          method="post" th:object="${reliefRequestForm}">
+
+                        <!-- PHẦN 1: ĐỊA ĐIỂM & TỌA ĐỘ -->
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="bi bi-geo-alt-fill text-danger"></i>
+                                <span>1. Địa điểm cứu trợ</span>
                             </div>
 
-                            <!-- Vị trí GPS & Nút lấy tọa độ -->
+                            <!-- Địa chỉ nhập tay -->
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Tọa độ GPS (Vị trí thực tế)</label>
-                                <div>
-                                    <button type="button" class="btn btn-outline-primary btn-sm" id="btn-get-location"
-                                        onclick="getLocation()">
-                                        📍 Lấy vị trí hiện tại
+                                <label for="location" class="form-label fw-bold">
+                                    Địa chỉ cụ thể / Điểm mốc nhận dạng <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" id="location" class="form-control" th:field="*{location}"
+                                       th:classappend="${#fields.hasErrors('location')} ? 'is-invalid'"
+                                       placeholder="Ví dụ: Thôn 2, xã Hòa Thịnh, huyện Tây Hòa, Phú Yên (hoặc số nhà, nóc nhà, cột mốc...)">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('location')}" th:errors="*{location}"></div>
+                            </div>
+
+                            <!-- GPS -->
+                            <div>
+                                <label class="form-label fw-bold d-block">Tọa độ GPS thực tế</label>
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <button type="button" class="btn btn-outline-primary btn-pill btn-sm" id="btn-get-location" onclick="getLocation()">
+                                        <i class="bi bi-crosshair me-1"></i> Lấy vị trí hiện tại
                                     </button>
-                                    <span id="location-status" class="small ms-2"
-                                        th:classappend="*{latitude != null} ? 'text-success' : 'text-muted'"
-                                        th:text="*{latitude != null} ? ('Đã có tọa độ: ' + latitude + ', ' + longitude) : 'Nhấn nút để lấy vị trí từ thiết bị của bạn'">
-                                    </span>
+
+                                    <div id="location-status" class="gps-status-box"
+                                         th:classappend="*{latitude != null} ? 'has-location'">
+                                        <i class="bi" th:classappend="*{latitude != null} ? 'bi-check-circle-fill text-success me-1' : 'bi-info-circle me-1'"></i>
+                                        <span th:text="*{latitude != null} ? ('Đã có tọa độ: ' + latitude + ', ' + longitude) : 'Nhấn nút để lấy vị trí từ thiết bị của bạn'"></span>
+                                    </div>
                                 </div>
                                 <input type="hidden" id="latitude" th:field="*{latitude}">
                                 <input type="hidden" id="longitude" th:field="*{longitude}">
                             </div>
+                        </div>
 
-                            <div class="row">
-                                <!-- Loại nhu cầu (chọn nhiều loại) -->
-                                <div class="col-12 mb-3">
-                                    <label class="form-label fw-bold d-block">Loại nhu cầu <span
-                                            class="text-danger">*</span> <span class="text-muted fw-normal small">(có thể chọn nhiều)</span></label>
-                                    <div class="row row-cols-2 row-cols-md-3 g-2">
-                                        <div class="col" th:each="t : ${needTypes}">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox"
-                                                    th:field="*{needTypes}" th:value="${t}" th:id="${'needType_' + t}">
-                                                <label class="form-check-label" th:for="${'needType_' + t}" th:text="${t.label}">
-                                                    Thực phẩm
-                                                </label>
-                                            </div>
-                                        </div>
+                        <!-- PHẦN 2: NHU CẦU & MỨC ĐỘ KHẨN CẤP -->
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="bi bi-exclamation-octagon-fill text-warning"></i>
+                                <span>2. Nhu cầu & Mức độ khẩn cấp</span>
+                            </div>
+
+                            <!-- Loại nhu cầu -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold d-block mb-1">
+                                    Loại nhu cầu <span class="text-danger">*</span>
+                                    <span class="text-muted fw-normal small">(có thể chọn nhiều loại)</span>
+                                </label>
+
+                                <div class="row row-cols-2 row-cols-sm-3 g-2 mt-1">
+                                    <div class="col" th:each="t : ${needTypes}">
+                                        <input type="checkbox"
+                                               class="need-chip-input"
+                                               th:field="*{needTypes}"
+                                               th:value="${t}"
+                                               th:id="${'needType_' + t}">
+                                        <label class="need-chip-label" th:for="${'needType_' + t}">
+                                            <i class="bi bi-check-circle-fill need-chip-check"></i>
+                                            <span class="need-chip-icon">
+                                                <i th:if="${t.name() == 'FOOD'}" class="bi bi-basket2 text-primary"></i>
+                                                <i th:if="${t.name() == 'WATER'}" class="bi bi-droplet-fill text-info"></i>
+                                                <i th:if="${t.name() == 'MEDICAL'}" class="bi bi-heart-pulse-fill text-danger"></i>
+                                                <i th:if="${t.name() == 'SHELTER'}" class="bi bi-house-door-fill text-warning"></i>
+                                                <i th:if="${t.name() == 'RESCUE'}" class="bi bi-life-preserver text-danger"></i>
+                                                <i th:if="${t.name() == 'OTHER'}" class="bi bi-box-seam-fill text-secondary"></i>
+                                            </span>
+                                            <span class="need-chip-text" th:text="${t.label}">Thực phẩm</span>
+                                        </label>
                                     </div>
-                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('needTypes')}"
-                                        th:errors="*{needTypes}"></div>
                                 </div>
+                                <div class="text-danger small mt-2" th:if="${#fields.hasErrors('needTypes')}" th:errors="*{needTypes}"></div>
+                            </div>
 
-                                <!-- Mức độ khẩn cấp -->
-                                <th:block th:replace="~{fragments/urgency-picker :: picker}"></th:block>
+                            <!-- Mức độ khẩn cấp qua fragment -->
+                            <th:block th:replace="~{fragments/urgency-picker :: picker}"></th:block>
+                        </div>
+
+                        <!-- PHẦN 3: SỐ NGƯỜI & MÔ TẢ CHI TIẾT -->
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="bi bi-people-fill text-primary"></i>
+                                <span>3. Thông tin người cần cứu & Mô tả tình trạng</span>
                             </div>
 
                             <!-- Số người -->
                             <div class="mb-3">
-                                <label for="numberOfPeople" class="form-label fw-bold">Số người cần cứu trợ <span
-                                        class="text-danger">*</span></label>
+                                <label for="numberOfPeople" class="form-label fw-bold">
+                                    Số người cần cứu trợ <span class="text-danger">*</span>
+                                </label>
                                 <input type="number" id="numberOfPeople" min="1" class="form-control"
-                                    th:field="*{numberOfPeople}"
-                                    th:classappend="${#fields.hasErrors('numberOfPeople')} ? 'is-invalid'"
-                                    placeholder="Số người (tối thiểu là 1)">
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('numberOfPeople')}"
-                                    th:errors="*{numberOfPeople}"></div>
+                                       th:field="*{numberOfPeople}"
+                                       th:classappend="${#fields.hasErrors('numberOfPeople')} ? 'is-invalid'"
+                                       placeholder="Số lượng người tại điểm cần cứu (tối thiểu 1)">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('numberOfPeople')}" th:errors="*{numberOfPeople}"></div>
                             </div>
 
-                            <!-- Mô tả chi tiết -->
-                            <div class="mb-3">
-                                <label for="description" class="form-label fw-bold">Mô tả thêm (nếu có)</label>
+                            <!-- Mô tả -->
+                            <div class="mb-2">
+                                <label for="description" class="form-label fw-bold">Mô tả thêm tình hình (nếu có)</label>
                                 <textarea id="description" class="form-control" rows="4" th:field="*{description}"
-                                    th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
-                                    placeholder="Mô tả cụ thể tình hình: có người già, trẻ nhỏ, bệnh tật, ngập sâu bao nhiêu mét, các nhu yếu phẩm cần gấp..."></textarea>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}"
-                                    th:errors="*{description}"></div>
+                                          th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+                                          placeholder="Mô tả cụ thể: có người già, trẻ nhỏ, người bệnh, phụ nữ mang thai, mực nước ngập sâu bao nhiêu, pin điện thoại sắp hết..."></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
                             </div>
+                        </div>
 
-                            <div class="d-flex justify-content-between align-items-center mt-4">
-                                <a th:href="@{/victim/home}" class="btn btn-secondary">Quay lại</a>
-                                <button type="submit" class="btn btn-primary"
+                        <!-- Nút điều hướng & Submit -->
+                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 mt-4 pt-2">
+                            <a th:href="@{/victim/home}" class="btn btn-outline-secondary btn-pill w-100 w-sm-auto order-2 order-sm-1">
+                                <i class="bi bi-arrow-left me-1"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-sos btn-pill px-4 py-2 w-100 w-sm-auto order-1 order-sm-2"
                                     th:text="${isEdit} ? 'Cập nhật yêu cầu' : 'Gửi yêu cầu cứu trợ'">
-                                    Gửi yêu cầu
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                                Gửi yêu cầu cứu trợ
+                            </button>
+                        </div>
+
+                    </form>
                 </div>
             </div>
         </div>
@@ -118,13 +163,13 @@
                 var lngInput = document.getElementById('longitude');
 
                 if (!navigator.geolocation) {
-                    status.textContent = 'Trình duyệt của bạn không hỗ trợ định vị GPS.';
-                    status.className = 'small text-danger ms-2';
+                    status.innerHTML = '<i class="bi bi-x-circle-fill text-danger me-1"></i>Trình duyệt không hỗ trợ định vị GPS.';
+                    status.className = 'gps-status-box error';
                     return;
                 }
 
-                status.textContent = 'Đang xác định vị trí...';
-                status.className = 'small text-info ms-2';
+                status.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>Đang xác định vị trí...';
+                status.className = 'gps-status-box loading';
 
                 navigator.geolocation.getCurrentPosition(
                     function (position) {
@@ -132,8 +177,8 @@
                         var lng = position.coords.longitude;
                         latInput.value = lat;
                         lngInput.value = lng;
-                        status.textContent = 'Đã lấy tọa độ: ' + lat.toFixed(6) + ', ' + lng.toFixed(6);
-                        status.className = 'small text-success ms-2';
+                        status.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã lấy tọa độ: ' + lat.toFixed(6) + ', ' + lng.toFixed(6);
+                        status.className = 'gps-status-box has-location';
                     },
                     function (error) {
                         var message = 'Không thể lấy vị trí';
@@ -148,8 +193,8 @@
                                 message = 'Quá thời gian lấy vị trí.';
                                 break;
                         }
-                        status.textContent = message;
-                        status.className = 'small text-danger ms-2';
+                        status.innerHTML = '<i class="bi bi-x-circle-fill text-danger me-1"></i>' + message;
+                        status.className = 'gps-status-box error';
                     },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,7 +9,9 @@
     <!-- Google Fonts: Be Vietnam Pro -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+        rel="stylesheet">
 
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -18,265 +21,293 @@
     <!-- App Design System -->
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
+
 <body>
 
-<!-- Navbar dùng chung -->
-<nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <!-- Navbar dùng chung -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
-<main class="app-content">
+    <main class="app-content">
 
-    <!-- 1. HERO SECTION -->
-    <section class="hero-section">
-        <div class="container">
-            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 mb-3 rounded-pill"
-                 style="background: rgba(200, 16, 46, 0.1); color: var(--color-red); font-weight: 600; font-size: 0.9rem;">
-                <span class="spinner-grow spinner-grow-sm text-danger" role="status" aria-hidden="true"></span>
-                <span>Hệ thống cứu trợ khẩn cấp 24/7</span>
-            </div>
-
-            <h1 class="hero-title">Cần cứu trợ</h1>
-            <p class="hero-slogan">Kết nối người cần giúp đỡ với người sẵn sàng giúp đỡ</p>
-            <p class="hero-subtitle">
-                Nền tảng tiếp nhận, phân loại và điều phối cứu hộ thiên tai tức thời,
-                giúp người dân trong vùng lũ bão kết nối trực tiếp với đội cứu trợ cứu nạn.
-            </p>
-
-            <div class="hero-actions">
-                <!-- Nút KHẨN CẤP — nổi bật nhất -->
-                <a th:href="@{/emergency}"
-                   id="btnHeroEmergency"
-                   class="btn btn-sos btn-pill btn-pill-lg text-white">
-                    <span>🆘 KHẨN CẤP — Cần cứu ngay</span>
-                </a>
-
-                <a th:href="@{/register/victim}"
-                   class="btn btn-outline-danger btn-pill btn-pill-lg fw-bold">
-                    <i class="bi bi-person-heart me-1"></i> Tôi cần cứu trợ
-                </a>
-
-                <a th:href="@{/register/rescuer}"
-                   class="btn btn-primary btn-pill btn-pill-lg fw-bold">
-                    <i class="bi bi-shield-plus me-1"></i> Tôi là người cứu trợ
-                </a>
-            </div>
-
-            <p class="text-muted mt-3 mb-0">
-                Đã có tài khoản?
-                <a th:href="@{/login}" class="text-primary fw-semibold text-decoration-none">
-                    Đăng nhập tại đây <i class="bi bi-arrow-right-short"></i>
-                </a>
-            </p>
-        </div>
-    </section>
-
-    <!-- 2. THẺ SỐ LIỆU (SỐ LIỆU THẬT TỪ DATABASE) -->
-    <section class="py-5" style="background: rgba(255, 255, 255, 0.6); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
-        <div class="container">
-            <h2 class="app-section-title">DỮ LIỆU CỨU TRỢ TRỰC TIẾP</h2>
-            <p class="app-section-subtitle">
-                Số liệu thực tế ghi nhận từ toàn hệ thống điều phối cứu trợ trên toàn quốc
-            </p>
-
-            <div class="row g-4 justify-content-center">
-                <!-- Thẻ 1: Tổng yêu cầu đã tiếp nhận -->
-                <div class="col-12 col-md-4">
-                    <div class="app-stat-card">
-                        <div class="stat-icon">
-                            <i class="bi bi-inbox-fill"></i>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-num" th:text="${stats.totalRequests}">0</div>
-                            <div class="stat-label">Tổng yêu cầu đã tiếp nhận</div>
-                        </div>
-                    </div>
+        <!-- 1. HERO SECTION -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 mb-3 rounded-pill"
+                    style="background: rgba(200, 16, 46, 0.1); color: var(--color-red); font-weight: 600; font-size: 0.9rem;">
+                    <span class="spinner-grow spinner-grow-sm text-danger" role="status" aria-hidden="true"></span>
+                    <span>Hệ thống cứu trợ khẩn cấp 24/7</span>
                 </div>
 
-                <!-- Thẻ 2: Yêu cầu đã hoàn thành -->
-                <div class="col-12 col-md-4">
-                    <div class="app-stat-card">
-                        <div class="stat-icon">
-                            <i class="bi bi-check2-circle"></i>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-num" th:text="${stats.completedRequests}">0</div>
-                            <div class="stat-label">Yêu cầu đã hoàn thành</div>
-                        </div>
-                    </div>
+                <h1 class="hero-title">Cần cứu trợ</h1>
+                <p class="hero-slogan">Kết nối người cần giúp đỡ với người sẵn sàng giúp đỡ</p>
+                <p class="hero-subtitle">
+                    Nền tảng tiếp nhận, phân loại và điều phối cứu hộ thiên tai tức thời,
+                    giúp người dân trong vùng lũ bão kết nối trực tiếp với đội cứu trợ cứu nạn.
+                </p>
+
+                <div class="hero-actions">
+                    <a th:href="@{/register/victim}" class="btn btn-need-help btn-pill btn-pill-lg fw-bold">
+                        <i class="bi bi-person-heart me-1"></i> Tôi cần cứu trợ
+                    </a>
+
+                    <a th:href="@{/register/rescuer}" class="btn btn-primary btn-pill btn-pill-lg fw-bold">
+                        <i class="bi bi-shield-plus me-1"></i> Tôi là người cứu trợ
+                    </a>
                 </div>
 
-                <!-- Thẻ 3: Tổng số người đã được hỗ trợ -->
-                <div class="col-12 col-md-4">
-                    <div class="app-stat-card">
-                        <div class="stat-icon">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-num" th:text="${stats.totalPeopleSupported}">0</div>
-                            <div class="stat-label">Người đã được hỗ trợ</div>
-                        </div>
-                    </div>
-                </div>
+                <p class="text-muted mt-3 mb-0">
+                    Đã có tài khoản?
+                    <a th:href="@{/login}" class="text-primary fw-semibold text-decoration-none">
+                        Đăng nhập tại đây <i class="bi bi-arrow-right-short"></i>
+                    </a>
+                </p>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- 3. BA CARD TÍNH NĂNG (XANH DƯƠNG / XANH LÁ / ĐỎ) -->
-    <section class="py-5">
-        <div class="container">
-            <h2 class="app-section-title">TÍNH NĂNG CỐT LÕI</h2>
-            <p class="app-section-subtitle">
-                Mỗi công cụ được tối ưu cho từng lực lượng để thông tin cứu hộ được truyền đạt nhanh và chính xác nhất
-            </p>
-
-            <div class="row g-4">
-                <!-- Card Xanh Dương: Cần cứu trợ -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="app-card app-card--blue app-card-lift text-center h-100 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="app-icon-circle app-icon-circle--blue mx-auto">
-                                <i class="bi bi-geo-alt-fill"></i>
-                            </div>
-                            <h3 class="h4 fw-bold text-primary mb-3">Cần cứu trợ</h3>
-                            <p class="text-secondary mb-4">
-                                Gửi yêu cầu trợ giúp chi tiết theo nhu cầu: thực phẩm, y tế, cứu người, nơi trú ẩn.
-                                Hỗ trợ lấy vị trí GPS chính xác tức thì chỉ với một chạm.
+        <!-- KHỐI KHẨN CẤP RIÊNG (DẢI NGANG BO GÓC) -->
+        <section class="emergency-strip-wrapper">
+            <div class="container">
+                <div class="emergency-strip">
+                    <div class="emergency-strip-main">
+                        <div class="emergency-strip-icon" aria-hidden="true">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        <div class="emergency-strip-text">
+                            <h2 class="emergency-strip-title">Bạn đang nguy hiểm đến tính mạng?</h2>
+                            <p class="emergency-strip-desc">
+                                Chỉ gửi tín hiệu khẩn cấp khi có người đang gặp nguy hiểm thật sự. Lực lượng cứu hộ sẽ gọi lại qua số điện thoại của bạn.
                             </p>
                         </div>
-                        <div>
-                            <a th:href="@{/register/victim}" class="btn btn-outline-primary btn-pill w-100">
-                                <span>Gửi yêu cầu giúp đỡ</span> <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
+                    </div>
+                    <div class="emergency-strip-action">
+                        <a th:href="@{/emergency}" id="btnEmergencyStrip" class="btn btn-emergency-strip">
+                            Gửi tín hiệu khẩn cấp
+                        </a>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <!-- Card Xanh Lá: Người cứu trợ -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="app-card app-card--green app-card-lift text-center h-100 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="app-icon-circle app-icon-circle--green mx-auto">
-                                <i class="bi bi-shield-check"></i>
+        <!-- 2. THẺ SỐ LIỆU (SỐ LIỆU THẬT TỪ DATABASE) -->
+        <section class="py-5"
+            style="background: rgba(255, 255, 255, 0.6); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+            <div class="container">
+                <h2 class="app-section-title">DỮ LIỆU CỨU TRỢ TRỰC TIẾP</h2>
+                <p class="app-section-subtitle">
+                    Số liệu thực tế ghi nhận từ toàn hệ thống điều phối cứu trợ trên toàn quốc
+                </p>
+
+                <div class="row g-4 justify-content-center">
+                    <!-- Thẻ 1: Tổng yêu cầu đã tiếp nhận -->
+                    <div class="col-12 col-md-4">
+                        <div class="app-stat-card">
+                            <div class="stat-icon">
+                                <i class="bi bi-inbox-fill"></i>
                             </div>
-                            <h3 class="h4 fw-bold text-success mb-3">Người cứu trợ</h3>
-                            <p class="text-secondary mb-4">
-                                Tra cứu, lọc danh sách người dân đang gặp nạn theo địa bàn, loại cứu trợ và mức độ nguy cấp.
-                                Nhận nhiệm vụ và cập nhật tiến độ cứu hộ trực tiếp.
-                            </p>
-                        </div>
-                        <div>
-                            <a th:href="@{/register/rescuer}" class="btn btn-outline-success btn-pill w-100">
-                                <span>Tham gia đội cứu trợ</span> <i class="bi bi-arrow-right"></i>
-                            </a>
+                            <div class="stat-content">
+                                <div class="stat-num" th:text="${stats.totalRequests}">0</div>
+                                <div class="stat-label">Tổng yêu cầu đã tiếp nhận</div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Card Đỏ: Theo dõi tiến độ -->
-                <div class="col-lg-4 col-md-12">
-                    <div class="app-card app-card--red app-card-lift text-center h-100 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="app-icon-circle app-icon-circle--red mx-auto">
-                                <i class="bi bi-activity"></i>
+                    <!-- Thẻ 2: Yêu cầu đã hoàn thành -->
+                    <div class="col-12 col-md-4">
+                        <div class="app-stat-card">
+                            <div class="stat-icon">
+                                <i class="bi bi-check2-circle"></i>
                             </div>
-                            <h3 class="h4 fw-bold text-danger mb-3">Theo dõi tiến độ</h3>
-                            <p class="text-secondary mb-4">
-                                Minh bạch hóa toàn bộ quá trình cứu nạn. Xem tình trạng yêu cầu theo thời gian thực
-                                từ lúc gửi, tiếp nhận, đang xử lý cho tới khi hoàn tất an toàn.
-                            </p>
+                            <div class="stat-content">
+                                <div class="stat-num" th:text="${stats.completedRequests}">0</div>
+                                <div class="stat-label">Yêu cầu đã hoàn thành</div>
+                            </div>
                         </div>
-                        <div>
-                            <a th:href="@{/login}" class="btn btn-outline-danger btn-pill w-100">
-                                <span>Theo dõi tình trạng</span> <i class="bi bi-arrow-right"></i>
-                            </a>
+                    </div>
+
+                    <!-- Thẻ 3: Tổng số người đã được hỗ trợ -->
+                    <div class="col-12 col-md-4">
+                        <div class="app-stat-card">
+                            <div class="stat-icon">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-num" th:text="${stats.totalPeopleSupported}">0</div>
+                                <div class="stat-label">Người đã được hỗ trợ</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- 4. QUY TRÌNH HOẠT ĐỘNG (5 BƯỚC KHÉP KÍN) -->
-    <section class="py-5" style="background: rgba(255, 255, 255, 0.4); border-top: 1px solid var(--border-subtle);">
-        <div class="container">
-            <h2 class="app-section-title">QUY TRÌNH ĐIỀU PHỐI HOẠT ĐỘNG</h2>
-            <p class="app-section-subtitle">
-                5 bước chuẩn hóa khép kín theo luồng xử lý thực tế, đảm bảo không bỏ sót bất kỳ ai
-            </p>
+        <!-- 3. BA CARD TÍNH NĂNG (XANH DƯƠNG / XANH LÁ / ĐỎ) -->
+        <section class="py-5">
+            <div class="container">
+                <h2 class="app-section-title">TÍNH NĂNG CỐT LÕI</h2>
+                <p class="app-section-subtitle">
+                    Mỗi công cụ được tối ưu cho từng lực lượng để thông tin cứu hộ được truyền đạt nhanh và chính xác
+                    nhất
+                </p>
 
-            <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
-                <!-- Bước 1 -->
-                <div class="col">
-                    <div class="process-step-card">
-                        <div class="process-step-num">1</div>
-                        <h4 class="process-step-title">Gửi yêu cầu</h4>
-                        <p class="process-step-desc">Người dân gửi yêu cầu cứu trợ kèm số người, nhu cầu và định vị GPS.</p>
+                <div class="row g-4">
+                    <!-- Card Xanh Dương: Cần cứu trợ -->
+                    <div class="col-lg-4 col-md-6">
+                        <div
+                            class="app-card app-card--blue app-card-lift text-center h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="app-icon-circle app-icon-circle--blue mx-auto">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                </div>
+                                <h3 class="h4 fw-bold text-primary mb-3">Cần cứu trợ</h3>
+                                <p class="text-secondary mb-4">
+                                    Gửi yêu cầu trợ giúp chi tiết theo nhu cầu: thực phẩm, y tế, cứu người, nơi trú ẩn.
+                                    Hỗ trợ lấy vị trí GPS chính xác tức thì chỉ với một chạm.
+                                </p>
+                            </div>
+                            <div>
+                                <a th:href="@{/register/victim}" class="btn btn-outline-primary btn-pill w-100">
+                                    <span>Gửi yêu cầu giúp đỡ</span> <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Bước 2 -->
-                <div class="col">
-                    <div class="process-step-card">
-                        <div class="process-step-num">2</div>
-                        <h4 class="process-step-title">Được tiếp nhận</h4>
-                        <p class="process-step-desc">Đội cứu hộ trong khu vực xem xét, xác nhận thông tin và tiếp nhận nhiệm vụ.</p>
+                    <!-- Card Xanh Lá: Người cứu trợ -->
+                    <div class="col-lg-4 col-md-6">
+                        <div
+                            class="app-card app-card--green app-card-lift text-center h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="app-icon-circle app-icon-circle--green mx-auto">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                <h3 class="h4 fw-bold text-success mb-3">Người cứu trợ</h3>
+                                <p class="text-secondary mb-4">
+                                    Tra cứu, lọc danh sách người dân đang gặp nạn theo địa bàn, loại cứu trợ và mức độ
+                                    nguy cấp.
+                                    Nhận nhiệm vụ và cập nhật tiến độ cứu hộ trực tiếp.
+                                </p>
+                            </div>
+                            <div>
+                                <a th:href="@{/register/rescuer}" class="btn btn-outline-success btn-pill w-100">
+                                    <span>Tham gia đội cứu trợ</span> <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Bước 3 -->
-                <div class="col">
-                    <div class="process-step-card">
-                        <div class="process-step-num">3</div>
-                        <h4 class="process-step-title">Đang xử lý</h4>
-                        <p class="process-step-desc">Lực lượng cứu trợ di chuyển đến hiện trường và tiến hành các biện pháp ứng cứu.</p>
-                    </div>
-                </div>
-
-                <!-- Bước 4 -->
-                <div class="col">
-                    <div class="process-step-card">
-                        <div class="process-step-num">4</div>
-                        <h4 class="process-step-title">Hoàn thành</h4>
-                        <p class="process-step-desc">Người dân được hỗ trợ an toàn hoặc nhận đủ nhu yếu phẩm tại hiện trường.</p>
-                    </div>
-                </div>
-
-                <!-- Bước 5 -->
-                <div class="col">
-                    <div class="process-step-card">
-                        <div class="process-step-num">5</div>
-                        <h4 class="process-step-title">Xác nhận</h4>
-                        <p class="process-step-desc">Người yêu cầu bấm xác nhận đã nhận cứu trợ an toàn để kết thúc vòng đời.</p>
+                    <!-- Card Đỏ: Theo dõi tiến độ -->
+                    <div class="col-lg-4 col-md-12">
+                        <div
+                            class="app-card app-card--red app-card-lift text-center h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="app-icon-circle app-icon-circle--red mx-auto">
+                                    <i class="bi bi-activity"></i>
+                                </div>
+                                <h3 class="h4 fw-bold text-danger mb-3">Theo dõi tiến độ</h3>
+                                <p class="text-secondary mb-4">
+                                    Minh bạch hóa toàn bộ quá trình cứu nạn. Xem tình trạng yêu cầu theo thời gian thực
+                                    từ lúc gửi, tiếp nhận, đang xử lý cho tới khi hoàn tất an toàn.
+                                </p>
+                            </div>
+                            <div>
+                                <a th:href="@{/login}" class="btn btn-outline-danger btn-pill w-100">
+                                    <span>Theo dõi tình trạng</span> <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-</main>
+        <!-- 4. QUY TRÌNH HOẠT ĐỘNG (5 BƯỚC KHÉP KÍN) -->
+        <section class="py-5" style="background: rgba(255, 255, 255, 0.4); border-top: 1px solid var(--border-subtle);">
+            <div class="container">
+                <h2 class="app-section-title">QUY TRÌNH ĐIỀU PHỐI HOẠT ĐỘNG</h2>
+                <p class="app-section-subtitle">
+                    5 bước chuẩn hóa khép kín theo luồng xử lý thực tế, đảm bảo không bỏ sót bất kỳ ai
+                </p>
 
-<!-- Footer chung -->
-<footer th:replace="~{fragments/layout :: footer}"></footer>
+                <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+                    <!-- Bước 1 -->
+                    <div class="col">
+                        <div class="process-step-card">
+                            <div class="process-step-num">1</div>
+                            <h4 class="process-step-title">Gửi yêu cầu</h4>
+                            <p class="process-step-desc">Người dân gửi yêu cầu cứu trợ kèm số người, nhu cầu và định vị
+                                GPS.</p>
+                        </div>
+                    </div>
 
-<!-- Nút lên đầu trang -->
-<button th:replace="~{fragments/layout :: scrollTop}"></button>
+                    <!-- Bước 2 -->
+                    <div class="col">
+                        <div class="process-step-card">
+                            <div class="process-step-num">2</div>
+                            <h4 class="process-step-title">Được tiếp nhận</h4>
+                            <p class="process-step-desc">Đội cứu hộ trong khu vực xem xét, xác nhận thông tin và tiếp
+                                nhận nhiệm vụ.</p>
+                        </div>
+                    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    (function() {
-        const btn = document.getElementById('scrollTopBtn');
-        if (!btn) return;
-        window.addEventListener('scroll', function() {
-            if (window.scrollY > 300) {
-                btn.classList.add('show');
-            } else {
-                btn.classList.remove('show');
-            }
-        });
-        btn.addEventListener('click', function() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    })();
-</script>
+                    <!-- Bước 3 -->
+                    <div class="col">
+                        <div class="process-step-card">
+                            <div class="process-step-num">3</div>
+                            <h4 class="process-step-title">Đang xử lý</h4>
+                            <p class="process-step-desc">Lực lượng cứu trợ di chuyển đến hiện trường và tiến hành các
+                                biện pháp ứng cứu.</p>
+                        </div>
+                    </div>
+
+                    <!-- Bước 4 -->
+                    <div class="col">
+                        <div class="process-step-card">
+                            <div class="process-step-num">4</div>
+                            <h4 class="process-step-title">Hoàn thành</h4>
+                            <p class="process-step-desc">Người dân được hỗ trợ an toàn hoặc nhận đủ nhu yếu phẩm tại
+                                hiện trường.</p>
+                        </div>
+                    </div>
+
+                    <!-- Bước 5 -->
+                    <div class="col">
+                        <div class="process-step-card">
+                            <div class="process-step-num">5</div>
+                            <h4 class="process-step-title">Xác nhận</h4>
+                            <p class="process-step-desc">Người yêu cầu bấm xác nhận đã nhận cứu trợ an toàn để kết thúc
+                                vòng đời.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer chung -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    <!-- Nút lên đầu trang -->
+    <button th:replace="~{fragments/layout :: scrollTop}"></button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            const btn = document.getElementById('scrollTopBtn');
+            if (!btn) return;
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 300) {
+                    btn.classList.add('show');
+                } else {
+                    btn.classList.remove('show');
+                }
+            });
+            btn.addEventListener('click', function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        })();
+    </script>
 
 </body>
-</html>
+
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="badge(urgency)" th:if="${urgency != null}" th:switch="${urgency.name()}">
+    <span th:case="'LOW'" class="urgency-badge urgency-badge--low" th:text="${urgency.label}">Thấp</span>
+    <span th:case="'MEDIUM'" class="urgency-badge urgency-badge--medium" th:text="${urgency.label}">Trung bình</span>
+    <span th:case="'HIGH'" class="urgency-badge urgency-badge--high" th:text="${urgency.label}">Cao</span>
+    <span th:case="'CRITICAL'" class="urgency-badge urgency-badge--critical">
+        <i class="bi bi-exclamation-triangle-fill text-white"></i>
+        <span th:text="${urgency.label}">Khẩn cấp</span>
+    </span>
+</th:block>
+
+</body>
+</html>

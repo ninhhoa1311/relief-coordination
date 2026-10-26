@@ -93,21 +93,19 @@ public class RescuerRequestService {
         Pageable pageable = PageRequest.of(pageNumber, 10);
 
         return switch (sort) {
-            case "urgency_asc"  -> reliefRequestRepository.timKiemYeuCauChoUrgencyAsc(cleanLocation, needType, urgencyLevel, pageable);
-            case "created_desc" -> reliefRequestRepository.timKiemYeuCauChoCreatedDesc(cleanLocation, needType, urgencyLevel, pageable);
-            case "created_asc"  -> reliefRequestRepository.timKiemYeuCauChoCreatedAsc(cleanLocation, needType, urgencyLevel, pageable);
-            default             -> reliefRequestRepository.timKiemYeuCauChoUrgencyDesc(cleanLocation, needType, urgencyLevel, pageable);
+            case "created_asc" -> reliefRequestRepository.timKiemYeuCauChoCreatedAsc(cleanLocation, needType, urgencyLevel, pageable);
+            default            -> reliefRequestRepository.timKiemYeuCauChoCreatedDesc(cleanLocation, needType, urgencyLevel, pageable);
         };
     }
 
     public String normalizeSortCho(String sortStr) {
         if (sortStr == null) {
-            return "urgency_desc";
+            return "created_desc";
         }
         String s = sortStr.trim().toLowerCase();
         return switch (s) {
-            case "urgency_asc", "created_desc", "created_asc" -> s;
-            default -> "urgency_desc";
+            case "created_asc" -> s;
+            default -> "created_desc";
         };
     }
 
@@ -149,5 +147,21 @@ public class RescuerRequestService {
         request.changeStatus(RequestStatus.ACCEPTED);
         request.setRescuer(rescuer);
         return reliefRequestRepository.save(request);
+    }
+
+    @Transactional(readOnly = true)
+    public long demYeuCauCho() {
+        return reliefRequestRepository.countByStatus(RequestStatus.SENT);
+    }
+
+    @Transactional(readOnly = true)
+    public long demYeuCauKhanCapCho() {
+        return reliefRequestRepository.countByStatusAndUrgencyLevel(RequestStatus.SENT, UrgencyLevel.CRITICAL);
+    }
+
+    @Transactional(readOnly = true)
+    public long demNhiemVuDangLam(Rescuer rescuer) {
+        if (rescuer == null) return 0;
+        return reliefRequestRepository.countByRescuerAndStatusIn(rescuer, List.of(RequestStatus.ACCEPTED, RequestStatus.PROCESSING));
     }
 }

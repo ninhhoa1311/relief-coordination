@@ -5,6 +5,32 @@
 
 Đặc tả đầy đủ: [docs/SPEC.md](docs/SPEC.md). Kiến trúc hiện tại: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Danh sách các trang chính
+
+- **Công khai (Khách vãng lai):**
+  - Trang chủ giới thiệu & thống kê cộng đồng: `/`
+  - Đăng ký tài khoản cần cứu trợ: `/register/victim`
+  - Đăng ký tài khoản tình nguyện viên / đội cứu trợ: `/register/rescuer`
+  - Gửi yêu cầu cứu trợ khẩn cấp nhanh (SOS không cần đăng nhập): `/emergency`
+  - Đăng nhập hệ thống: `/login`
+- **Người cần cứu trợ (Victim):**
+  - Quản lý danh sách yêu cầu của tôi: `/victim/home`
+  - Tạo yêu cầu cứu trợ mới: `/victim/requests/new`
+  - Xem chi tiết và tiến độ xử lý yêu cầu: `/victim/requests/{id}`
+  - Cập nhật hồ sơ cá nhân và đổi mật khẩu: `/profile`
+- **Người / Đội cứu trợ (Rescuer):**
+  - Bảng tin yêu cầu chờ tiếp nhận (lọc trạng thái, nhu cầu, mức độ): `/rescuer/home`
+  - Xem chi tiết yêu cầu và nhận hỗ trợ: `/rescuer/requests/{id}`
+  - Danh sách nhiệm vụ đang phụ trách: `/rescuer/tasks`
+  - Chi tiết nhiệm vụ và cập nhật tiến trình (tiếp nhận -> đang xử lý -> hoàn thành): `/rescuer/tasks/{id}`
+  - Cập nhật hồ sơ cá nhân và đổi mật khẩu: `/profile`
+- **Quản trị viên (Admin):**
+  - Tổng quan điều phối & 8 thẻ thống kê yêu cầu: `/admin/home`
+  - Quản lý và phê duyệt tài khoản (Victim / Rescuer, duyệt hàng loạt): `/admin/users`
+  - Xem hồ sơ chi tiết và lịch sử yêu cầu của nạn nhân: `/admin/users/{id}`
+  - Cập nhật hồ sơ cá nhân và đổi mật khẩu: `/profile`
+
+
 ## Công nghệ
 
 - Java 21, Maven, Spring Boot 4.1.1

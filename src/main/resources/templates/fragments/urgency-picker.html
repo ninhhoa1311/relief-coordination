@@ -13,50 +13,19 @@
                    th:value="${level}"
                    th:id="${'urgency_' + level}"
                    autocomplete="off">
-            <label class="btn w-100 h-100 p-3 text-start d-flex flex-column justify-content-center urgency-card"
+            <label class="w-100 h-100 p-3 text-start d-flex flex-column justify-content-center urgency-card"
                    th:for="${'urgency_' + level}"
-                   th:classappend="${level.name() == 'LOW' ? 'btn-outline-secondary' :
-                                    (level.name() == 'MEDIUM' ? 'btn-outline-primary' :
-                                    (level.name() == 'HIGH' ? 'btn-outline-warning' : 'btn-outline-danger'))}">
-                <span class="fw-bold fs-6 urgency-title" th:text="${level.label}"></span>
-                <span class="small mt-1 urgency-desc"
-                      th:classappend="${level.name() == 'CRITICAL'} ? 'text-danger text-opacity-75' : 'text-muted'"
-                      th:text="${level.moTa}"></span>
+                   th:classappend="${level.name() == 'LOW' ? 'urgency-card--low' :
+                                    (level.name() == 'MEDIUM' ? 'urgency-card--medium' :
+                                    (level.name() == 'HIGH' ? 'urgency-card--high' : 'urgency-card--critical'))}">
+                <span class="urgency-title fs-6" th:text="${level.label}"></span>
+                <span class="urgency-desc mt-1" th:text="${level.moTa}"></span>
             </label>
         </div>
     </div>
 
     <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('urgencyLevel')}"
          th:errors="*{urgencyLevel}"></div>
-
-    <style>
-        .urgency-card {
-            border-width: 1.5px;
-            cursor: pointer;
-            transition: all 0.15s ease-in-out;
-        }
-        .urgency-card .urgency-title {
-            color: #212529;
-        }
-        /* Khi thẻ được chọn: đổi màu chữ tiêu đề cho tương phản */
-        .btn-check:checked + .btn-outline-secondary .urgency-title,
-        .btn-check:checked + .btn-outline-primary .urgency-title,
-        .btn-check:checked + .btn-outline-danger .urgency-title {
-            color: #fff !important;
-        }
-        .btn-check:checked + .btn-outline-warning .urgency-title {
-            color: #000 !important;
-        }
-        /* Khi thẻ được chọn: đổi màu mô tả tương phản với màu nền */
-        .btn-check:checked + .btn-outline-secondary .urgency-desc,
-        .btn-check:checked + .btn-outline-primary .urgency-desc,
-        .btn-check:checked + .btn-outline-danger .urgency-desc {
-            color: rgba(255, 255, 255, 0.85) !important;
-        }
-        .btn-check:checked + .btn-outline-warning .urgency-desc {
-            color: rgba(0, 0, 0, 0.75) !important;
-        }
-    </style>
 </div>
 
 </body>

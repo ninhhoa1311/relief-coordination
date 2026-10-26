@@ -39,7 +39,21 @@ public class VictimController {
     public String home(Authentication authentication, Model model) {
         Victim victim = (Victim) currentUserService.getCurrentUser(authentication);
         List<ReliefRequest> requests = victimRequestService.danhSachCuaToi(victim);
+        long totalRequests = requests.size();
+        long pendingOrProcessingRequests = requests.stream()
+                .filter(r -> r.getStatus() == RequestStatus.SENT
+                        || r.getStatus() == RequestStatus.ACCEPTED
+                        || r.getStatus() == RequestStatus.PROCESSING)
+                .count();
+        long completedRequests = requests.stream()
+                .filter(r -> r.getStatus() == RequestStatus.COMPLETED
+                        || r.getStatus() == RequestStatus.CONFIRMED)
+                .count();
+
         model.addAttribute("requests", requests);
+        model.addAttribute("totalRequests", totalRequests);
+        model.addAttribute("pendingOrProcessingRequests", pendingOrProcessingRequests);
+        model.addAttribute("completedRequests", completedRequests);
         model.addAttribute("content", "victim/home");
         model.addAttribute("pageTitle", "Yêu cầu cứu trợ của tôi");
         return "fragments/layout";

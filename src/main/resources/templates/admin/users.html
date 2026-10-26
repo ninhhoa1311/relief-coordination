@@ -1,33 +1,52 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
 
 <div th:fragment="content">
 
-    <h1 class="mb-4">Quản lý tài khoản</h1>
+    <!-- Tiêu đề trang -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="app-icon-circle flex-shrink-0 mb-0">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div>
+            <h2 class="app-section-title mb-1 text-start">Quản lý tài khoản</h2>
+            <p class="text-muted small mb-0">Phân quyền, phê duyệt và quản lý trạng thái tài khoản trong hệ thống</p>
+        </div>
+    </div>
 
     <!-- Flash messages -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <span th:text="${success}"></span>
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm border-0 mb-4" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+            <span class="fw-medium" th:text="${success}"></span>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
     </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <span th:text="${errorMessage}"></span>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm border-0 mb-4" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill fs-5 text-danger"></i>
+            <span class="fw-medium" th:text="${errorMessage}"></span>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
     </div>
 
-    <!-- Nav tabs -->
-    <ul class="nav nav-tabs mb-4" id="accountTabs" role="tablist">
+    <!-- Nav tabs dạng pills bo góc -->
+    <ul class="nav nav-pills app-nav-pills mb-4" id="accountTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link" th:classappend="${currentTab == 'victim'} ? 'active fw-bold' : ''"
+            <a class="nav-link" th:classappend="${currentTab == 'victim'} ? 'active' : ''"
                th:href="@{/admin/users(tab='victim')}">
-                Victim (<span th:text="${#lists.size(victims)}">0</span>)
+                <i class="bi bi-person-heart"></i>
+                <span>Người cần cứu trợ (Victim)</span>
+                <span class="badge" th:text="${#lists.size(victims)}">0</span>
             </a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" th:classappend="${currentTab == 'rescuer'} ? 'active fw-bold' : ''"
+            <a class="nav-link" th:classappend="${currentTab == 'rescuer'} ? 'active' : ''"
                th:href="@{/admin/users(tab='rescuer')}">
-                Rescuer (<span th:text="${#lists.size(rescuers)}">0</span>)
+                <i class="bi bi-heart-pulse"></i>
+                <span>Đội cứu trợ (Rescuer)</span>
+                <span class="badge" th:text="${#lists.size(rescuers)}">0</span>
             </a>
         </li>
     </ul>
@@ -35,130 +54,328 @@
     <!-- Tab content -->
     <div class="tab-content" id="accountTabsContent">
 
-        <!-- Tab Victim -->
+        <!-- ================= TAB VICTIM ================= -->
         <div class="tab-pane fade" th:classappend="${currentTab == 'victim'} ? 'show active'" id="victim-pane">
-            <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Họ tên</th>
-                            <th>Email</th>
-                            <th>Số điện thoại</th>
-                            <th>Trạng thái</th>
-                            <th class="text-center">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="v : ${victims}">
-                            <td>
+
+            <!-- Bảng trên Desktop (>= 768px) -->
+            <div class="app-card p-0 overflow-hidden mb-4 table-view">
+                <div class="table-responsive">
+                    <table class="table victim-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Họ và tên</th>
+                                <th style="width: 25%;">Email</th>
+                                <th style="width: 20%;">Số điện thoại</th>
+                                <th style="width: 15%;">Trạng thái</th>
+                                <th style="width: 15%;" class="text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="v : ${victims}">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="app-icon-circle app-icon-circle--blue mb-0 flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.95rem;">
+                                            <span th:text="${#strings.substring(v.fullName, 0, 1)}">A</span>
+                                        </div>
+                                        <a th:href="@{/admin/users/{id}(id=${v.id})}"
+                                           class="fw-bold text-navy text-decoration-none"
+                                           th:text="${v.fullName}">
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-secondary small" th:text="${v.email}"></span>
+                                </td>
+                                <td>
+                                    <a th:if="${v.phoneNumber != null}" th:href="'tel:' + ${v.phoneNumber}"
+                                       class="text-decoration-none text-navy fw-semibold small">
+                                        <i class="bi bi-telephone me-1 text-primary"></i><span th:text="${v.phoneNumber}"></span>
+                                    </a>
+                                    <span th:unless="${v.phoneNumber != null}" class="text-muted small">-</span>
+                                </td>
+                                <td>
+                                    <span th:if="${v.enabled}" class="badge-status status-badge--confirmed">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Hoạt động
+                                    </span>
+                                    <span th:unless="${v.enabled}" class="badge-status status-badge--cancelled">
+                                        <i class="bi bi-lock-fill me-1"></i>Bị khóa
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-inline-flex gap-2">
+                                        <a th:href="@{/admin/users/{id}(id=${v.id})}"
+                                           class="btn btn-sm btn-outline-navy btn-pill px-3">
+                                            <i class="bi bi-eye me-1"></i>Xem
+                                        </a>
+                                        <form th:action="@{/admin/users/victim/{id}/toggle(id=${v.id})}" method="post" class="d-inline m-0">
+                                            <button type="submit"
+                                                    th:class="${v.enabled}
+                                                        ? 'btn btn-sm btn-outline-danger btn-pill'
+                                                        : 'btn btn-sm btn-outline-success btn-pill'"
+                                                    th:onclick="${v.enabled} ? 'return confirm(\'Bạn có chắc chắn muốn khóa tài khoản này?\')' : ''">
+                                                <i th:class="${v.enabled} ? 'bi bi-lock me-1' : 'bi bi-unlock me-1'"></i>
+                                                <span th:text="${v.enabled} ? 'Khóa' : 'Mở khóa'"></span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(victims)}">
+                                <td colspan="5" class="text-center text-muted py-5">
+                                    <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                                    Chưa có tài khoản Người cần cứu trợ nào.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Giao diện Card cho Mobile (< 768px) -->
+            <div class="mobile-view d-md-none">
+                <div th:each="v : ${victims}" class="victim-mobile-card mb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="app-icon-circle app-icon-circle--blue mb-0 flex-shrink-0" style="width: 38px; height: 38px; font-size: 1rem;">
+                                <span th:text="${#strings.substring(v.fullName, 0, 1)}">A</span>
+                            </div>
+                            <div>
                                 <a th:href="@{/admin/users/{id}(id=${v.id})}"
-                                   class="text-decoration-none fw-semibold"
+                                   class="fw-bold text-navy text-decoration-none"
                                    th:text="${v.fullName}">
                                 </a>
-                            </td>
-                            <td th:text="${v.email}"></td>
-                            <td th:text="${v.phoneNumber}"></td>
-                            <td>
-                                <span th:if="${v.enabled}" class="badge text-bg-success">Hoạt động</span>
-                                <span th:unless="${v.enabled}" class="badge text-bg-danger">Bị khóa</span>
-                            </td>
-                            <td class="text-center">
-                                <a th:href="@{/admin/users/{id}(id=${v.id})}"
-                                   class="btn btn-sm btn-outline-primary me-1">
-                                    Xem
-                                </a>
-                                <form th:action="@{/admin/users/victim/{id}/toggle(id=${v.id})}" method="post" class="d-inline">
-                                    <button type="submit"
-                                            th:class="${v.enabled}
-                                                ? 'btn btn-sm btn-outline-danger'
-                                                : 'btn btn-sm btn-outline-success'"
-                                            th:text="${v.enabled} ? 'Khóa' : 'Mở khóa'">
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(victims)}">
-                            <td colspan="5" class="text-center text-muted py-4">Chưa có tài khoản nào.</td>
-                        </tr>
-                    </tbody>
-                </table>
+                                <div class="text-muted small" th:text="${v.email}"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <span th:if="${v.enabled}" class="badge-status status-badge--confirmed">
+                                <i class="bi bi-check-circle-fill me-1"></i>Hoạt động
+                            </span>
+                            <span th:unless="${v.enabled}" class="badge-status status-badge--cancelled">
+                                <i class="bi bi-lock-fill me-1"></i>Bị khóa
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center text-muted small mb-3">
+                        <i class="bi bi-telephone me-1 text-primary"></i>
+                        <a th:if="${v.phoneNumber != null}" th:href="'tel:' + ${v.phoneNumber}"
+                           class="text-decoration-none text-navy fw-semibold" th:text="${v.phoneNumber}">
+                        </a>
+                        <span th:unless="${v.phoneNumber != null}">Chưa có SĐT</span>
+                    </div>
+
+                    <div class="d-flex gap-2 pt-2 border-top">
+                        <a th:href="@{/admin/users/{id}(id=${v.id})}"
+                           class="btn btn-sm btn-outline-navy btn-pill flex-fill">
+                            <i class="bi bi-eye me-1"></i>Chi tiết
+                        </a>
+                        <form th:action="@{/admin/users/victim/{id}/toggle(id=${v.id})}" method="post" class="flex-fill m-0">
+                            <button type="submit"
+                                    th:class="${v.enabled}
+                                        ? 'btn btn-sm btn-outline-danger btn-pill w-100'
+                                        : 'btn btn-sm btn-outline-success btn-pill w-100'"
+                                    th:onclick="${v.enabled} ? 'return confirm(\'Bạn có chắc chắn muốn khóa tài khoản này?\')' : ''">
+                                <i th:class="${v.enabled} ? 'bi bi-lock me-1' : 'bi bi-unlock me-1'"></i>
+                                <span th:text="${v.enabled} ? 'Khóa' : 'Mở khóa'"></span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(victims)}" class="app-card text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-secondary d-block mb-2"></i>
+                    <p class="text-muted mb-0">Chưa có tài khoản Người cần cứu trợ nào.</p>
+                </div>
             </div>
+
         </div>
 
-        <!-- Tab Rescuer -->
+        <!-- ================= TAB RESCUER ================= -->
         <div class="tab-pane fade" th:classappend="${currentTab == 'rescuer'} ? 'show active'" id="rescuer-pane">
 
             <!-- Nút Chấp nhận tất cả ở đầu phần Rescuer -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-muted small">
-                    Có <strong th:text="${pendingRescuerCount}">0</strong> tài khoản đang chờ duyệt
-                </span>
-                <form th:action="@{/admin/rescuers/approve-all}" method="post">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 p-3 bg-white rounded-3 shadow-sm border mb-4">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="app-icon-circle mb-0 flex-shrink-0" style="width: 40px; height: 40px; font-size: 1.1rem;"
+                         th:classappend="${pendingRescuerCount > 0} ? 'app-icon-circle--blue' : ''">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-navy">
+                            Có <span class="text-primary fs-5" th:text="${pendingRescuerCount}">0</span> tài khoản đang chờ phê duyệt
+                        </div>
+                        <div class="text-muted small">Kiểm tra thông tin trước khi cấp quyền điều phối cứu trợ</div>
+                    </div>
+                </div>
+                <form th:action="@{/admin/rescuers/approve-all}" method="post" class="m-0 w-100 w-sm-auto text-end">
                     <button type="submit"
-                            class="btn btn-success"
+                            class="btn btn-success btn-pill px-4 w-100 w-sm-auto"
                             th:disabled="${pendingRescuerCount == 0}"
                             th:onclick="${pendingRescuerCount > 0} ? 'return confirm(\'Bạn có chắc muốn duyệt tất cả ' + ${pendingRescuerCount} + ' tài khoản Rescuer đang chờ?\')' : ''">
-                        ✓ Chấp nhận tất cả (<span th:text="${pendingRescuerCount}">0</span>)
+                        <i class="bi bi-check2-all me-1"></i> Chấp nhận tất cả (<span th:text="${pendingRescuerCount}">0</span>)
                     </button>
                 </form>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Họ tên</th>
-                            <th>Email</th>
-                            <th>Số điện thoại</th>
-                            <th>Trạng thái</th>
-                            <th class="text-center">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="r : ${rescuers}" th:with="status=${@adminService.getRescuerStatus(r)}">
-                            <td th:text="${r.fullName}"></td>
-                            <td th:text="${r.email}"></td>
-                            <td th:text="${r.phoneNumber}"></td>
-                            <td>
-                                <span th:if="${status == 'PENDING'}" class="badge text-bg-warning">Chờ duyệt</span>
-                                <span th:if="${status == 'ACTIVE'}"  class="badge text-bg-success">Hoạt động</span>
-                                <span th:if="${status == 'LOCKED'}"  class="badge text-bg-danger">Bị khóa</span>
-                            </td>
-                            <td class="text-center">
-                                <!-- Nút Duyệt cho tài khoản Chờ duyệt -->
-                                <form th:if="${status == 'PENDING'}"
-                                      th:action="@{/admin/rescuers/{id}/approve(id=${r.id})}"
-                                      method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-success">
-                                        Duyệt
-                                    </button>
-                                </form>
+            <!-- Bảng trên Desktop (>= 768px) -->
+            <div class="app-card p-0 overflow-hidden mb-4 table-view">
+                <div class="table-responsive">
+                    <table class="table victim-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Họ và tên</th>
+                                <th style="width: 25%;">Email</th>
+                                <th style="width: 20%;">Số điện thoại</th>
+                                <th style="width: 15%;">Trạng thái</th>
+                                <th style="width: 15%;" class="text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="r : ${rescuers}" th:with="status=${@adminService.getRescuerStatus(r)}">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="app-icon-circle app-icon-circle--green mb-0 flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.95rem;">
+                                            <span th:text="${#strings.substring(r.fullName, 0, 1)}">R</span>
+                                        </div>
+                                        <span class="fw-bold text-navy" th:text="${r.fullName}"></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-secondary small" th:text="${r.email}"></span>
+                                </td>
+                                <td>
+                                    <a th:if="${r.phoneNumber != null}" th:href="'tel:' + ${r.phoneNumber}"
+                                       class="text-decoration-none text-navy fw-semibold small">
+                                        <i class="bi bi-telephone me-1 text-primary"></i><span th:text="${r.phoneNumber}"></span>
+                                    </a>
+                                    <span th:unless="${r.phoneNumber != null}" class="text-muted small">-</span>
+                                </td>
+                                <td>
+                                    <span th:if="${status == 'PENDING'}" class="badge-status status-badge--assigned">
+                                        <i class="bi bi-clock-fill me-1"></i>Chờ duyệt
+                                    </span>
+                                    <span th:if="${status == 'ACTIVE'}" class="badge-status status-badge--confirmed">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Hoạt động
+                                    </span>
+                                    <span th:if="${status == 'LOCKED'}" class="badge-status status-badge--cancelled">
+                                        <i class="bi bi-lock-fill me-1"></i>Bị khóa
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-inline-flex gap-2">
+                                        <!-- Nút Duyệt cho tài khoản Chờ duyệt -->
+                                        <form th:if="${status == 'PENDING'}"
+                                              th:action="@{/admin/rescuers/{id}/approve(id=${r.id})}"
+                                              method="post" class="d-inline m-0">
+                                            <button type="submit" class="btn btn-sm btn-success btn-pill px-3">
+                                                <i class="bi bi-check-lg me-1"></i>Duyệt
+                                            </button>
+                                        </form>
 
-                                <!-- Nút Khóa cho tài khoản Hoạt động -->
-                                <form th:if="${status == 'ACTIVE'}"
-                                      th:action="@{/admin/users/rescuer/{id}/toggle(id=${r.id})}"
-                                      method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        Khóa
-                                    </button>
-                                </form>
+                                        <!-- Nút Khóa cho tài khoản Hoạt động -->
+                                        <form th:if="${status == 'ACTIVE'}"
+                                              th:action="@{/admin/users/rescuer/{id}/toggle(id=${r.id})}"
+                                              method="post" class="d-inline m-0">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger btn-pill px-3"
+                                                    onclick="return confirm('Bạn có chắc chắn muốn khóa tài khoản cứu trợ này?')">
+                                                <i class="bi bi-lock me-1"></i>Khóa
+                                            </button>
+                                        </form>
 
-                                <!-- Nút Mở khóa cho tài khoản Bị khóa -->
-                                <form th:if="${status == 'LOCKED'}"
-                                      th:action="@{/admin/users/rescuer/{id}/toggle(id=${r.id})}"
-                                      method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-success">
-                                        Mở khóa
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(rescuers)}">
-                            <td colspan="5" class="text-center text-muted py-4">Chưa có tài khoản nào.</td>
-                        </tr>
-                    </tbody>
-                </table>
+                                        <!-- Nút Mở khóa cho tài khoản Bị khóa -->
+                                        <form th:if="${status == 'LOCKED'}"
+                                              th:action="@{/admin/users/rescuer/{id}/toggle(id=${r.id})}"
+                                              method="post" class="d-inline m-0">
+                                            <button type="submit" class="btn btn-sm btn-outline-success btn-pill px-3">
+                                                <i class="bi bi-unlock me-1"></i>Mở khóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(rescuers)}">
+                                <td colspan="5" class="text-center text-muted py-5">
+                                    <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                                    Chưa có tài khoản Đội cứu trợ nào.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            <!-- Giao diện Card cho Mobile (< 768px) -->
+            <div class="mobile-view d-md-none">
+                <div th:each="r : ${rescuers}" th:with="status=${@adminService.getRescuerStatus(r)}" class="victim-mobile-card mb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="app-icon-circle app-icon-circle--green mb-0 flex-shrink-0" style="width: 38px; height: 38px; font-size: 1rem;">
+                                <span th:text="${#strings.substring(r.fullName, 0, 1)}">R</span>
+                            </div>
+                            <div>
+                                <span class="fw-bold text-navy" th:text="${r.fullName}"></span>
+                                <div class="text-muted small" th:text="${r.email}"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <span th:if="${status == 'PENDING'}" class="badge-status status-badge--assigned">
+                                <i class="bi bi-clock-fill me-1"></i>Chờ duyệt
+                            </span>
+                            <span th:if="${status == 'ACTIVE'}" class="badge-status status-badge--confirmed">
+                                <i class="bi bi-check-circle-fill me-1"></i>Hoạt động
+                            </span>
+                            <span th:if="${status == 'LOCKED'}" class="badge-status status-badge--cancelled">
+                                <i class="bi bi-lock-fill me-1"></i>Bị khóa
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center text-muted small mb-3">
+                        <i class="bi bi-telephone me-1 text-primary"></i>
+                        <a th:if="${r.phoneNumber != null}" th:href="'tel:' + ${r.phoneNumber}"
+                           class="text-decoration-none text-navy fw-semibold" th:text="${r.phoneNumber}">
+                        </a>
+                        <span th:unless="${r.phoneNumber != null}">Chưa có SĐT</span>
+                    </div>
+
+                    <div class="pt-2 border-top">
+                        <!-- Nút Duyệt cho tài khoản Chờ duyệt -->
+                        <form th:if="${status == 'PENDING'}"
+                              th:action="@{/admin/rescuers/{id}/approve(id=${r.id})}"
+                              method="post" class="m-0">
+                            <button type="submit" class="btn btn-sm btn-success btn-pill w-100">
+                                <i class="bi bi-check-lg me-1"></i>Phê duyệt tài khoản
+                            </button>
+                        </form>
+
+                        <!-- Nút Khóa cho tài khoản Hoạt động -->
+                        <form th:if="${status == 'ACTIVE'}"
+                              th:action="@{/admin/users/rescuer/{id}/toggle(id=${r.id})}"
+                              method="post" class="m-0">
+                            <button type="submit" class="btn btn-sm btn-outline-danger btn-pill w-100"
+                                    onclick="return confirm('Bạn có chắc chắn muốn khóa tài khoản cứu trợ này?')">
+                                <i class="bi bi-lock me-1"></i>Khóa tài khoản
+                            </button>
+                        </form>
+
+                        <!-- Nút Mở khóa cho tài khoản Bị khóa -->
+                        <form th:if="${status == 'LOCKED'}"
+                              th:action="@{/admin/users/rescuer/{id}/toggle(id=${r.id})}"
+                              method="post" class="m-0">
+                            <button type="submit" class="btn btn-sm btn-outline-success btn-pill w-100">
+                                <i class="bi bi-unlock me-1"></i>Mở khóa tài khoản
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(rescuers)}" class="app-card text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-secondary d-block mb-2"></i>
+                    <p class="text-muted mb-0">Chưa có tài khoản Đội cứu trợ nào.</p>
+                </div>
+            </div>
+
         </div>
 
     </div>

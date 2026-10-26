@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="steps(status)">
+    <!-- Trường hợp đã hủy -->
+    <div th:if="${status != null and status.name() == 'CANCELLED'}" class="alert alert-danger d-flex align-items-center gap-3 p-3 mb-0 rounded-3 border-danger">
+        <i class="bi bi-x-circle-fill fs-2 text-danger flex-shrink-0"></i>
+        <div>
+            <h6 class="mb-1 fw-bold text-danger">Yêu cầu đã bị hủy</h6>
+            <p class="mb-0 small text-danger text-opacity-75">Yêu cầu này đã được hủy bỏ và không còn trong danh sách cứu trợ.</p>
+        </div>
+    </div>
+
+    <!-- Trường hợp bình thường (5 bước) -->
+    <div th:if="${status != null and status.name() != 'CANCELLED'}" class="progress-steps">
+        <!-- Bước 1: Đã gửi -->
+        <div class="progress-step" th:classappend="${status.name() == 'SENT' ? 'current' : 'done'}">
+            <div class="progress-step-dot" th:classappend="${status.name() == 'SENT' ? 'current' : 'done'}">
+                <i th:if="${status.name() == 'SENT'}" class="bi bi-send-fill"></i>
+                <i th:unless="${status.name() == 'SENT'}" class="bi bi-check-lg"></i>
+            </div>
+            <div class="progress-step-label" th:classappend="${status.name() == 'SENT' ? 'current' : 'done'}">Đã gửi</div>
+        </div>
+
+        <!-- Bước 2: Đã tiếp nhận -->
+        <div class="progress-step"
+             th:classappend="${status.name() == 'ACCEPTED' ? 'current' : ((status.name() == 'PROCESSING' or status.name() == 'COMPLETED' or status.name() == 'CONFIRMED') ? 'done' : '')}">
+            <div class="progress-step-dot"
+                 th:classappend="${status.name() == 'ACCEPTED' ? 'current' : ((status.name() == 'PROCESSING' or status.name() == 'COMPLETED' or status.name() == 'CONFIRMED') ? 'done' : '')}">
+                <i th:if="${status.name() == 'ACCEPTED'}" class="bi bi-person-check-fill"></i>
+                <i th:if="${status.name() == 'PROCESSING' or status.name() == 'COMPLETED' or status.name() == 'CONFIRMED'}" class="bi bi-check-lg"></i>
+                <span th:if="${status.name() == 'SENT'}">2</span>
+            </div>
+            <div class="progress-step-label"
+                 th:classappend="${status.name() == 'ACCEPTED' ? 'current' : ((status.name() == 'PROCESSING' or status.name() == 'COMPLETED' or status.name() == 'CONFIRMED') ? 'done' : '')}">
+                Tiếp nhận
+            </div>
+        </div>
+
+        <!-- Bước 3: Đang xử lý -->
+        <div class="progress-step"
+             th:classappend="${status.name() == 'PROCESSING' ? 'current' : ((status.name() == 'COMPLETED' or status.name() == 'CONFIRMED') ? 'done' : '')}">
+            <div class="progress-step-dot"
+                 th:classappend="${status.name() == 'PROCESSING' ? 'current' : ((status.name() == 'COMPLETED' or status.name() == 'CONFIRMED') ? 'done' : '')}">
+                <i th:if="${status.name() == 'PROCESSING'}" class="bi bi-truck"></i>
+                <i th:if="${status.name() == 'COMPLETED' or status.name() == 'CONFIRMED'}" class="bi bi-check-lg"></i>
+                <span th:if="${status.name() == 'SENT' or status.name() == 'ACCEPTED'}">3</span>
+            </div>
+            <div class="progress-step-label"
+                 th:classappend="${status.name() == 'PROCESSING' ? 'current' : ((status.name() == 'COMPLETED' or status.name() == 'CONFIRMED') ? 'done' : '')}">
+                Đang xử lý
+            </div>
+        </div>
+
+        <!-- Bước 4: Hoàn thành -->
+        <div class="progress-step"
+             th:classappend="${status.name() == 'COMPLETED' ? 'current' : (status.name() == 'CONFIRMED' ? 'done' : '')}">
+            <div class="progress-step-dot"
+                 th:classappend="${status.name() == 'COMPLETED' ? 'current' : (status.name() == 'CONFIRMED' ? 'done' : '')}">
+                <i th:if="${status.name() == 'COMPLETED'}" class="bi bi-box2-heart-fill"></i>
+                <i th:if="${status.name() == 'CONFIRMED'}" class="bi bi-check-lg"></i>
+                <span th:if="${status.name() == 'SENT' or status.name() == 'ACCEPTED' or status.name() == 'PROCESSING'}">4</span>
+            </div>
+            <div class="progress-step-label"
+                 th:classappend="${status.name() == 'COMPLETED' ? 'current' : (status.name() == 'CONFIRMED' ? 'done' : '')}">
+                Hoàn thành
+            </div>
+        </div>
+
+        <!-- Bước 5: Đã xác nhận -->
+        <div class="progress-step"
+             th:classappend="${status.name() == 'CONFIRMED' ? 'current' : ''}">
+            <div class="progress-step-dot"
+                 th:classappend="${status.name() == 'CONFIRMED' ? 'done' : ''}">
+                <i th:if="${status.name() == 'CONFIRMED'}" class="bi bi-check2-all"></i>
+                <span th:unless="${status.name() == 'CONFIRMED'}">5</span>
+            </div>
+            <div class="progress-step-label"
+                 th:classappend="${status.name() == 'CONFIRMED' ? 'done' : ''}">
+                Đã xác nhận
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

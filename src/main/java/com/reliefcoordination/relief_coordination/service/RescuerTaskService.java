@@ -70,21 +70,19 @@ public class RescuerTaskService {
         Pageable pageable = PageRequest.of(pageNumber, 10);
 
         return switch (sort) {
-            case "urgency_asc"   -> reliefRequestRepository.timKiemNhiemVuUrgencyAsc(rescuer, status, needType, urgencyLevel, cleanLocation, pageable);
-            case "accepted_desc" -> reliefRequestRepository.timKiemNhiemVuAcceptedDesc(rescuer, status, needType, urgencyLevel, cleanLocation, pageable);
-            case "accepted_asc"  -> reliefRequestRepository.timKiemNhiemVuAcceptedAsc(rescuer, status, needType, urgencyLevel, cleanLocation, pageable);
-            default              -> reliefRequestRepository.timKiemNhiemVuDefault(rescuer, status, needType, urgencyLevel, cleanLocation, pageable);
+            case "accepted_asc" -> reliefRequestRepository.timKiemNhiemVuAcceptedAsc(rescuer, status, needType, urgencyLevel, cleanLocation, pageable);
+            default             -> reliefRequestRepository.timKiemNhiemVuAcceptedDesc(rescuer, status, needType, urgencyLevel, cleanLocation, pageable);
         };
     }
 
     public String normalizeSortNhiemVu(String sortStr) {
         if (sortStr == null) {
-            return "urgency_desc";
+            return "accepted_desc";
         }
         String s = sortStr.trim().toLowerCase();
         return switch (s) {
-            case "urgency_asc", "accepted_desc", "accepted_asc" -> s;
-            default -> "urgency_desc";
+            case "accepted_asc" -> s;
+            default -> "accepted_desc";
         };
     }
 
@@ -142,5 +140,23 @@ public class RescuerTaskService {
             throw new AccessDeniedException(
                     "Bạn không có quyền thao tác với nhiệm vụ #" + request.getId());
         }
+    }
+
+    @Transactional(readOnly = true)
+    public long demNhiemVuDangLam(Rescuer rescuer) {
+        if (rescuer == null) return 0;
+        return reliefRequestRepository.countByRescuerAndStatusIn(rescuer, List.of(RequestStatus.ACCEPTED, RequestStatus.PROCESSING));
+    }
+
+    @Transactional(readOnly = true)
+    public long demNhiemVuHoanThanh(Rescuer rescuer) {
+        if (rescuer == null) return 0;
+        return reliefRequestRepository.countByRescuerAndStatusIn(rescuer, List.of(RequestStatus.COMPLETED, RequestStatus.CONFIRMED));
+    }
+
+    @Transactional(readOnly = true)
+    public long demTongNhiemVu(Rescuer rescuer) {
+        if (rescuer == null) return 0;
+        return reliefRequestRepository.countByRescuer(rescuer);
     }
 }

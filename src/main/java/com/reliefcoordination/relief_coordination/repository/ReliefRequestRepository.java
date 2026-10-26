@@ -18,6 +18,9 @@ public interface ReliefRequestRepository extends JpaRepository<ReliefRequest, Lo
     List<ReliefRequest> findByVictim(Victim victim);
     List<ReliefRequest> findByRescuer(Rescuer rescuer);
     long countByStatus(RequestStatus status);
+    long countByStatusAndUrgencyLevel(RequestStatus status, UrgencyLevel urgencyLevel);
+    long countByRescuerAndStatusIn(Rescuer rescuer, java.util.Collection<RequestStatus> statuses);
+    long countByRescuer(Rescuer rescuer);
 
     // Kiểm tra chống spam SOS: cùng SĐT đã có yêu cầu chưa kết thúc (chưa CONFIRMED/CANCELLED)
     boolean existsByGuestPhoneAndStatusNotIn(String guestPhone, java.util.Collection<RequestStatus> statuses);

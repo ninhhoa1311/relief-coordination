@@ -188,37 +188,26 @@ class RescuerTaskServiceTest {
     }
 
     // -----------------------------------------------------------------------
-    // Test 8 (mới): Sắp xếp mặc định: việc đang làm lên trước, trong đó khẩn cấp cao lên đầu
+    // Test 8 (cập nhật): Sắp xếp mặc định: mới nhất trước (theo updatedAt DESC)
     // -----------------------------------------------------------------------
 
     @Test
-    void timKiemNhiemVu_sapXepMacDinh_viecDangLamLenTruoc_khanCapLenDau() {
+    void timKiemNhiemVu_sapXepMacDinh_moiNhatTruoc() {
         Victim victim = createVictim("task_sort_default@test.com");
         Rescuer rescuer = createRescuer("rescuer_sort_def@test.com");
 
-        // Nhiệm vụ 1: COMPLETED, CRITICAL
-        ReliefRequest taskCompleted = createAcceptedRequestWithUrgency(victim, rescuer, UrgencyLevel.CRITICAL);
-        rescuerTaskService.capNhatTrangThaiTiep(taskCompleted.getId(), rescuer); // PROCESSING
-        rescuerTaskService.capNhatTrangThaiTiep(taskCompleted.getId(), rescuer); // COMPLETED
-
-        // Nhiệm vụ 2: ACCEPTED, MEDIUM
-        ReliefRequest taskAcceptedMedium = createAcceptedRequestWithUrgency(victim, rescuer, UrgencyLevel.MEDIUM);
-
-        // Nhiệm vụ 3: PROCESSING, CRITICAL
-        ReliefRequest taskProcessingCritical = createAcceptedRequestWithUrgency(victim, rescuer, UrgencyLevel.CRITICAL);
-        rescuerTaskService.capNhatTrangThaiTiep(taskProcessingCritical.getId(), rescuer); // PROCESSING
+        ReliefRequest reqOld = createAcceptedRequestWithUpdatedAt(
+                victim, rescuer, java.time.LocalDateTime.now().minusHours(5));
+        ReliefRequest reqNew = createAcceptedRequestWithUpdatedAt(
+                victim, rescuer, java.time.LocalDateTime.now().minusHours(1));
 
         org.springframework.data.domain.Page<ReliefRequest> page =
                 rescuerTaskService.timKiemNhiemVuTheoString(rescuer, null, null, null, null, null, 0);
 
         List<Long> ids = page.getContent().stream().map(ReliefRequest::getId).toList();
 
-        // Việc đang làm (PROCESSING, ACCEPTED) phải đứng trước việc đã xong (COMPLETED)
-        assertThat(ids.indexOf(taskProcessingCritical.getId())).isLessThan(ids.indexOf(taskCompleted.getId()));
-        assertThat(ids.indexOf(taskAcceptedMedium.getId())).isLessThan(ids.indexOf(taskCompleted.getId()));
-
-        // Trong nhóm đang làm: CRITICAL đứng trước MEDIUM
-        assertThat(ids.indexOf(taskProcessingCritical.getId())).isLessThan(ids.indexOf(taskAcceptedMedium.getId()));
+        // Mặc định: mới nhất trước — reqNew (updatedAt mới hơn) phải đứng trước reqOld
+        assertThat(ids.indexOf(reqNew.getId())).isLessThan(ids.indexOf(reqOld.getId()));
     }
 
     // -----------------------------------------------------------------------

@@ -4,90 +4,146 @@
 <div th:fragment="content">
 
     <!-- Flash messages -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <span th:text="${success}"></span>
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm border-0 mb-4" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+            <span class="fw-medium" th:text="${success}"></span>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <span th:text="${errorMessage}"></span>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm border-0 mb-4" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill fs-5 text-danger"></i>
+            <span class="fw-medium" th:text="${errorMessage}"></span>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
         <div>
-            <h3 class="mb-1">Yêu cầu cứu trợ đang chờ</h3>
-            <p class="text-muted mb-0">Danh sách yêu cầu chưa có người tiếp nhận, sắp xếp theo mức khẩn cấp</p>
+            <h3 class="app-section-title mb-1">
+                <i class="bi bi-broadcast text-danger me-2"></i>Yêu cầu cứu trợ đang chờ
+            </h3>
+            <p class="text-muted mb-0">Danh sách yêu cầu chưa có người tiếp nhận — ưu tiên hỗ trợ trường hợp khẩn cấp kịp thời</p>
         </div>
     </div>
 
-    <!-- Form tìm kiếm / lọc -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body">
-            <form method="GET" th:action="@{/rescuer/home}" class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label for="location" class="form-label fw-semibold small text-muted">📍 Địa điểm</label>
-                    <input type="text" id="location" name="location" class="form-control"
-                           placeholder="Tìm theo địa điểm..."
-                           th:value="${filterLocation}">
+    <!-- Hàng thẻ thống kê nhỏ (3 thẻ) -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-4">
+            <div class="app-stat-card app-stat-card--blue">
+                <div class="stat-icon">
+                    <i class="bi bi-hourglass-split"></i>
                 </div>
-                <div class="col-md-3">
-                    <label for="needType" class="form-label fw-semibold small text-muted">🆘 Loại nhu cầu</label>
-                    <select id="needType" name="needType" class="form-select">
-                        <option value="">-- Tất cả --</option>
-                        <option th:each="nt : ${needTypes}"
-                                th:value="${nt.name()}"
-                                th:text="${nt.label}"
-                                th:selected="${filterNeedType != null and filterNeedType.equalsIgnoreCase(nt.name())}">
-                        </option>
-                    </select>
+                <div>
+                    <div class="stat-value" th:text="${pendingCount ?: 0}">0</div>
+                    <div class="stat-label">Yêu cầu đang chờ</div>
                 </div>
-                <div class="col-md-2">
-                    <label for="urgencyLevel" class="form-label fw-semibold small text-muted">⚡ Mức khẩn cấp</label>
-                    <select id="urgencyLevel" name="urgencyLevel" class="form-select">
-                        <option value="">-- Tất cả --</option>
-                        <option th:each="ul : ${urgencyLevels}"
-                                th:value="${ul.name()}"
-                                th:text="${ul.label}"
-                                th:selected="${filterUrgencyLevel != null and filterUrgencyLevel.equalsIgnoreCase(ul.name())}">
-                        </option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="sort" class="form-label fw-semibold small text-muted">↕️ Sắp xếp theo</label>
-                    <select id="sort" name="sort" class="form-select">
-                        <option value="urgency_desc" th:selected="${filterSort == 'urgency_desc' or filterSort == null}">Mức khẩn cấp: cao đến thấp</option>
-                        <option value="urgency_asc" th:selected="${filterSort == 'urgency_asc'}">Mức khẩn cấp: thấp đến cao</option>
-                        <option value="created_desc" th:selected="${filterSort == 'created_desc'}">Thời gian tạo: mới nhất trước</option>
-                        <option value="created_asc" th:selected="${filterSort == 'created_asc'}">Thời gian tạo: cũ nhất trước</option>
-                    </select>
-                </div>
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
-                    <a th:href="@{/rescuer/home}" class="btn btn-outline-secondary" title="Xóa bộ lọc">✕</a>
-                </div>
-            </form>
+            </div>
         </div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="app-stat-card app-stat-card--red">
+                <div class="stat-icon">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-value" th:text="${criticalCount ?: 0}">0</div>
+                    <div class="stat-label">Khẩn cấp cần cứu ngay</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-lg-4">
+            <div class="app-stat-card app-stat-card--green">
+                <div class="stat-icon">
+                    <i class="bi bi-person-walking"></i>
+                </div>
+                <div>
+                    <div class="stat-value" th:text="${myActiveTaskCount ?: 0}">0</div>
+                    <div class="stat-label">Nhiệm vụ bạn đang làm</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thanh lọc + sắp xếp trong card riêng -->
+    <div class="app-card mb-4">
+        <form method="GET" th:action="@{/rescuer/home}" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="location" class="form-label fw-semibold small text-muted">
+                    <i class="bi bi-geo-alt-fill text-primary me-1"></i>Địa điểm
+                </label>
+                <input type="text" id="location" name="location" class="form-control rounded-pill px-3"
+                       placeholder="Tìm theo khu vực, địa điểm..."
+                       th:value="${filterLocation}">
+            </div>
+            <div class="col-md-3">
+                <label for="needType" class="form-label fw-semibold small text-muted">
+                    <i class="bi bi-box2-heart-fill text-danger me-1"></i>Loại nhu cầu
+                </label>
+                <select id="needType" name="needType" class="form-select rounded-pill px-3">
+                    <option value="">-- Tất cả nhu cầu --</option>
+                    <option th:each="nt : ${needTypes}"
+                            th:value="${nt.name()}"
+                            th:text="${nt.label}"
+                            th:selected="${filterNeedType != null and filterNeedType.equalsIgnoreCase(nt.name())}">
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="urgencyLevel" class="form-label fw-semibold small text-muted">
+                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Mức khẩn cấp
+                </label>
+                <select id="urgencyLevel" name="urgencyLevel" class="form-select rounded-pill px-3">
+                    <option value="">-- Tất cả mức độ --</option>
+                    <option th:each="ul : ${urgencyLevels}"
+                            th:value="${ul.name()}"
+                            th:text="${ul.label}"
+                            th:selected="${filterUrgencyLevel != null and filterUrgencyLevel.equalsIgnoreCase(ul.name())}">
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="sort" class="form-label fw-semibold small text-muted">
+                    <i class="bi bi-arrow-down-up text-secondary me-1"></i>Sắp xếp theo
+                </label>
+                <select id="sort" name="sort" class="form-select rounded-pill px-3">
+                    <option value="created_desc" th:selected="${filterSort == 'created_desc' or filterSort == null}">Mới nhất trước</option>
+                    <option value="created_asc" th:selected="${filterSort == 'created_asc'}">Cũ nhất trước</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-navy btn-pill btn-mobile-touch flex-grow-1 fw-semibold">
+                    <i class="bi bi-funnel-fill me-1"></i>Lọc
+                </button>
+                <a th:href="@{/rescuer/home}" class="btn btn-outline-secondary btn-pill btn-mobile-touch px-3" title="Xóa bộ lọc">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </form>
     </div>
 
     <!-- Danh sách yêu cầu -->
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
+    <div th:if="${requestsPage.empty}" class="app-card text-center py-5">
+        <div class="mb-3">
+            <i class="bi bi-inbox fs-1 text-muted opacity-75"></i>
+        </div>
+        <h5 class="fw-bold text-navy mb-2">Hiện chưa có yêu cầu nào đang chờ</h5>
+        <p class="text-muted mb-3">Các yêu cầu cứu trợ chưa có người tiếp nhận sẽ hiển thị tại đây hoặc thử xóa bộ lọc tìm kiếm.</p>
+        <a th:href="@{/rescuer/home}" class="btn btn-outline-secondary btn-pill btn-mobile-touch px-4">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa bộ lọc
+        </a>
+    </div>
 
-            <!-- Không có yêu cầu nào -->
-            <div th:if="${requestsPage.empty}" class="text-center py-5">
-                <p class="text-muted fs-5 mb-1">Không có yêu cầu nào phù hợp.</p>
-                <p class="text-muted small mb-3">Hãy thử kiểm tra lại sau hoặc xóa bộ lọc tìm kiếm.</p>
-                <a th:href="@{/rescuer/home}" class="btn btn-outline-secondary btn-sm">Xóa lọc</a>
-            </div>
-
-            <!-- Bảng danh sách -->
-            <div th:unless="${requestsPage.empty}" class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+    <div th:unless="${requestsPage.empty}">
+        <!-- Desktop Table (>= 768px) -->
+        <div class="app-card p-0 overflow-hidden table-view mb-4">
+            <div class="table-responsive">
+                <table class="table victim-table align-middle mb-0">
+                    <thead>
                         <tr>
                             <th scope="col" class="ps-3">Mã #</th>
-                            <th scope="col">Địa điểm</th>
+                            <th scope="col">Địa điểm & Liên hệ</th>
                             <th scope="col">Loại nhu cầu</th>
                             <th scope="col">Số người</th>
                             <th scope="col">Mức khẩn cấp</th>
@@ -97,41 +153,51 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Row đỏ nhạt khi là yêu cầu SOS khẩn cấp (victim = null) -->
                         <tr th:each="req : ${requests}"
-                            th:classappend="${req.victim == null} ? 'table-danger'">
+                            th:classappend="${req.urgencyLevel.name() == 'CRITICAL' and (req.status.name() == 'SENT' or req.status.name() == 'ACCEPTED' or req.status.name() == 'PROCESSING')} ? 'row-critical' : ''">
                             <td class="ps-3 fw-bold text-secondary">
                                 <span th:text="'#' + ${req.id}"></span>
-                                <!-- Badge SOS cho yêu cầu khẩn cấp không đăng nhập -->
+                                <!-- Badge SOS cho yêu cầu vãng lai không tài khoản -->
                                 <span th:if="${req.victim == null}"
-                                      class="badge bg-danger ms-1">🆘 SOS</span>
+                                      class="badge bg-danger ms-1">
+                                    <i class="bi bi-broadcast me-1"></i>SOS
+                                </span>
                             </td>
                             <td>
-                                <span class="fw-semibold text-dark" th:text="${req.location}"></span>
-                                <!-- Hiện SĐT ngay trên danh sách nếu là SOS -->
-                                <div th:if="${req.victim == null and req.guestPhone != null}" class="small mt-1">
-                                    <a th:href="'tel:' + ${req.guestPhone}"
-                                       th:text="'📞 ' + ${req.guestPhone}"
-                                       class="text-decoration-none text-danger fw-semibold"></a>
+                                <div class="fw-semibold text-dark" th:text="${req.location}"></div>
+                                <!-- Thông tin người gửi / SĐT gọi trực tiếp -->
+                                <div class="small mt-1 d-flex flex-wrap align-items-center gap-2">
+                                    <span th:if="${req.victim != null}" class="text-muted">
+                                        <i class="bi bi-person me-1"></i><span th:text="${req.victim.fullName}"></span>
+                                    </span>
+                                    <span th:if="${req.victim == null and req.guestName != null}" class="text-danger fw-semibold">
+                                        <i class="bi bi-person-fill me-1"></i><span th:text="${req.guestName} + ' (Khách)'"></span>
+                                    </span>
+                                    <!-- SĐT -->
+                                    <a th:if="${req.victim != null and req.victim.phoneNumber != null}"
+                                       th:href="'tel:' + ${req.victim.phoneNumber}"
+                                       class="text-decoration-none text-primary fw-medium">
+                                        <i class="bi bi-telephone me-1"></i><span th:text="${req.victim.phoneNumber}"></span>
+                                    </a>
+                                    <a th:if="${req.victim == null and req.guestPhone != null}"
+                                       th:href="'tel:' + ${req.guestPhone}"
+                                       class="text-decoration-none text-danger fw-bold">
+                                        <i class="bi bi-telephone-fill me-1"></i><span th:text="${req.guestPhone}"></span>
+                                    </a>
                                 </div>
-                                <div th:if="${req.hasLocation()}" class="small">
+                                <div th:if="${req.hasLocation()}" class="mt-1">
                                     <a th:href="${req.mapUrl}" target="_blank" rel="noopener noreferrer"
-                                       class="text-decoration-none small text-primary">📍 Bản đồ</a>
+                                       class="text-decoration-none small text-primary fw-medium">
+                                        <i class="bi bi-geo-alt me-1"></i>Bản đồ
+                                    </a>
                                 </div>
                             </td>
                             <td>
                                 <th:block th:replace="~{fragments/need-badges :: badges(${req.needTypes})}"></th:block>
                             </td>
-                            <td th:text="${req.numberOfPeople} + ' người'"></td>
+                            <td class="fw-medium text-dark" th:text="${req.numberOfPeople} + ' người'"></td>
                             <td>
-                                <!-- Badge màu riêng cho từng mức khẩn cấp -->
-                                <span class="badge"
-                                      th:classappend="${req.urgencyLevel.name() == 'CRITICAL' ? 'bg-danger' :
-                                                       (req.urgencyLevel.name() == 'HIGH'     ? 'bg-warning text-dark' :
-                                                       (req.urgencyLevel.name() == 'MEDIUM'   ? 'bg-info text-dark' :
-                                                                                                'bg-secondary'))}"
-                                      th:text="${req.urgencyLevel.label}">
-                                </span>
+                                <th:block th:replace="~{fragments/urgency-badge :: badge(${req.urgencyLevel})}"></th:block>
                             </td>
                             <td class="text-muted small"
                                 th:text="${req.createdAt != null ? #temporals.format(req.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">
@@ -141,7 +207,7 @@
                             </td>
                             <td class="text-end pe-3">
                                 <a th:href="@{/rescuer/requests/{id}(id=${req.id})}"
-                                   class="btn btn-sm btn-outline-primary">
+                                   class="btn btn-sm btn-outline-primary btn-pill btn-mobile-touch px-3">
                                     Xem chi tiết
                                 </a>
                             </td>
@@ -150,43 +216,144 @@
                 </table>
             </div>
 
+            <!-- Table Footer: Dòng hiển thị x-y/z yêu cầu và Phân trang -->
+            <div class="card-footer bg-white border-0 py-3 px-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                <div class="small text-muted">
+                    <span th:if="${requestsPage.totalElements > 0}">
+                        Hiển thị <strong th:text="${requestsPage.number * requestsPage.size + 1}">1</strong>–<strong th:text="${requestsPage.number * requestsPage.size + requestsPage.numberOfElements}">10</strong> / tổng <strong th:text="${requestsPage.totalElements}">25</strong> yêu cầu
+                    </span>
+                </div>
+
+                <!-- Phân trang Bootstrap Pill -->
+                <nav th:if="${requestsPage.totalPages > 1}" aria-label="Phân trang yêu cầu">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" th:classappend="${requestsPage.first} ? 'disabled'">
+                            <a class="page-link rounded-pill me-1"
+                               th:href="@{/rescuer/home(location=${filterLocation}, needType=${filterNeedType}, urgencyLevel=${filterUrgencyLevel}, sort=${filterSort}, page=${requestsPage.number - 1})}">
+                                « Trước
+                            </a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, requestsPage.totalPages - 1)}"
+                            th:classappend="${i == requestsPage.number} ? 'active'">
+                            <a class="page-link rounded-pill mx-1"
+                               th:href="@{/rescuer/home(location=${filterLocation}, needType=${filterNeedType}, urgencyLevel=${filterUrgencyLevel}, sort=${filterSort}, page=${i})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${requestsPage.last} ? 'disabled'">
+                            <a class="page-link rounded-pill ms-1"
+                               th:href="@{/rescuer/home(location=${filterLocation}, needType=${filterNeedType}, urgencyLevel=${filterUrgencyLevel}, sort=${filterSort}, page=${requestsPage.number + 1})}">
+                                Sau »
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
 
-        <!-- Footer: Dòng hiển thị x-y/z yêu cầu và Phân trang -->
-        <div class="card-footer bg-white border-0 py-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-            <!-- Dòng số lượng -->
-            <div class="small text-muted">
-                <span th:if="${requestsPage.totalElements > 0}">
-                    Hiển thị <strong th:text="${requestsPage.number * requestsPage.size + 1}">1</strong>–<strong th:text="${requestsPage.number * requestsPage.size + requestsPage.numberOfElements}">10</strong> / tổng <strong th:text="${requestsPage.totalElements}">25</strong> yêu cầu
-                </span>
-                <span th:if="${requestsPage.totalElements == 0}">
-                    Không có yêu cầu nào phù hợp.
-                </span>
+        <!-- Mobile Card View (< 768px) -->
+        <div class="mobile-view mb-4">
+            <div th:each="req : ${requests}"
+                 class="victim-mobile-card"
+                 th:classappend="${req.urgencyLevel.name() == 'CRITICAL' and (req.status.name() == 'SENT' or req.status.name() == 'ACCEPTED' or req.status.name() == 'PROCESSING')} ? 'row-critical' : ''">
+                
+                <div class="card-row align-items-center mb-2 pb-2 border-bottom">
+                    <div class="d-flex align-items-center gap-1">
+                        <span class="fw-bold text-navy fs-6" th:text="'#' + ${req.id}"></span>
+                        <span th:if="${req.victim == null}" class="badge bg-danger ms-1">
+                            <i class="bi bi-broadcast me-1"></i>SOS
+                        </span>
+                    </div>
+                    <th:block th:replace="~{fragments/status-badge :: badge(${req.status})}"></th:block>
+                </div>
+
+                <div class="card-row">
+                    <span class="card-label">Địa điểm:</span>
+                    <div class="text-end">
+                        <span class="fw-semibold text-dark" th:text="${req.location}"></span>
+                        <div th:if="${req.hasLocation()}" class="mt-1">
+                            <a th:href="${req.mapUrl}" target="_blank" rel="noopener noreferrer" class="small text-primary text-decoration-none fw-medium">
+                                <i class="bi bi-geo-alt me-1"></i>Bản đồ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-row">
+                    <span class="card-label">Người gửi:</span>
+                    <div class="text-end">
+                        <span th:if="${req.victim != null}" class="text-dark fw-medium" th:text="${req.victim.fullName}"></span>
+                        <span th:if="${req.victim == null}" class="text-danger fw-bold" th:text="${req.guestName != null ? req.guestName + ' (Khách)' : 'Khách vãng lai'}"></span>
+                        <div class="mt-1">
+                            <a th:if="${req.victim != null and req.victim.phoneNumber != null}"
+                               th:href="'tel:' + ${req.victim.phoneNumber}"
+                               class="text-decoration-none small text-primary fw-bold">
+                                <i class="bi bi-telephone-fill me-1"></i><span th:text="${req.victim.phoneNumber}"></span>
+                            </a>
+                            <a th:if="${req.victim == null and req.guestPhone != null}"
+                               th:href="'tel:' + ${req.guestPhone}"
+                               class="text-decoration-none small text-danger fw-bold">
+                                <i class="bi bi-telephone-fill me-1"></i><span th:text="${req.guestPhone}"></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-row">
+                    <span class="card-label">Nhu cầu:</span>
+                    <div class="text-end">
+                        <th:block th:replace="~{fragments/need-badges :: badges(${req.needTypes})}"></th:block>
+                    </div>
+                </div>
+
+                <div class="card-row">
+                    <span class="card-label">Số người:</span>
+                    <span class="fw-medium text-dark" th:text="${req.numberOfPeople} + ' người'"></span>
+                </div>
+
+                <div class="card-row">
+                    <span class="card-label">Mức độ:</span>
+                    <div>
+                        <th:block th:replace="~{fragments/urgency-badge :: badge(${req.urgencyLevel})}"></th:block>
+                    </div>
+                </div>
+
+                <div class="card-row">
+                    <span class="card-label">Thời gian:</span>
+                    <span class="text-muted small" th:text="${req.createdAt != null ? #temporals.format(req.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></span>
+                </div>
+
+                <div class="mt-3 pt-2 border-top">
+                    <a th:href="@{/rescuer/requests/{id}(id=${req.id})}"
+                       class="btn btn-outline-primary btn-pill btn-mobile-touch w-100 fw-semibold">
+                        Xem chi tiết & Tiếp nhận
+                    </a>
+                </div>
             </div>
 
-            <!-- Phân trang Bootstrap -->
-            <nav th:if="${requestsPage.totalPages > 1}" aria-label="Phân trang yêu cầu">
-                <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item" th:classappend="${requestsPage.first} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/rescuer/home(location=${filterLocation}, needType=${filterNeedType}, urgencyLevel=${filterUrgencyLevel}, sort=${filterSort}, page=${requestsPage.number - 1})}">
-                            « Trước
-                        </a>
-                    </li>
-                    <li class="page-item" th:each="i : ${#numbers.sequence(0, requestsPage.totalPages - 1)}"
-                        th:classappend="${i == requestsPage.number} ? 'active'">
-                        <a class="page-link"
-                           th:href="@{/rescuer/home(location=${filterLocation}, needType=${filterNeedType}, urgencyLevel=${filterUrgencyLevel}, sort=${filterSort}, page=${i})}"
-                           th:text="${i + 1}">1</a>
-                    </li>
-                    <li class="page-item" th:classappend="${requestsPage.last} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/rescuer/home(location=${filterLocation}, needType=${filterNeedType}, urgencyLevel=${filterUrgencyLevel}, sort=${filterSort}, page=${requestsPage.number + 1})}">
-                            Sau »
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+            <!-- Mobile pagination info & links -->
+            <div class="app-card py-3 text-center">
+                <div class="small text-muted mb-2">
+                    Hiển thị <strong th:text="${requestsPage.number * requestsPage.size + 1}">1</strong>–<strong th:text="${requestsPage.number * requestsPage.size + requestsPage.numberOfElements}">10</strong> / tổng <strong th:text="${requestsPage.totalElements}">25</strong>
+                </div>
+                <nav th:if="${requestsPage.totalPages > 1}" aria-label="Phân trang mobile">
+                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                        <li class="page-item" th:classappend="${requestsPage.first} ? 'disabled'">
+                            <a class="page-link rounded-pill me-1"
+                               th:href="@{/rescuer/home(location=${filterLocation}, needType=${filterNeedType}, urgencyLevel=${filterUrgencyLevel}, sort=${filterSort}, page=${requestsPage.number - 1})}">«</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, requestsPage.totalPages - 1)}"
+                            th:classappend="${i == requestsPage.number} ? 'active'">
+                            <a class="page-link rounded-pill mx-1"
+                               th:href="@{/rescuer/home(location=${filterLocation}, needType=${filterNeedType}, urgencyLevel=${filterUrgencyLevel}, sort=${filterSort}, page=${i})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${requestsPage.last} ? 'disabled'">
+                            <a class="page-link rounded-pill ms-1"
+                               th:href="@{/rescuer/home(location=${filterLocation}, needType=${filterNeedType}, urgencyLevel=${filterUrgencyLevel}, sort=${filterSort}, page=${requestsPage.number + 1})}">»</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </div>
 

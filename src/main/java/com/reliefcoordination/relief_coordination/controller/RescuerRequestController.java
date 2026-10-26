@@ -42,6 +42,15 @@ public class RescuerRequestController {
         Page<ReliefRequest> requestsPage = rescuerRequestService.timKiemYeuCauChoTheoString(
                 location, needType, urgencyLevel, sort, page);
 
+        Rescuer rescuer = currentUserService.getCurrentRescuer(authentication);
+        long pendingCount = rescuerRequestService.demYeuCauCho();
+        long criticalCount = rescuerRequestService.demYeuCauKhanCapCho();
+        long myActiveTaskCount = rescuerRequestService.demNhiemVuDangLam(rescuer);
+
+        model.addAttribute("pendingCount", pendingCount);
+        model.addAttribute("criticalCount", criticalCount);
+        model.addAttribute("myActiveTaskCount", myActiveTaskCount);
+
         model.addAttribute("requestsPage", requestsPage);
         model.addAttribute("requests", requestsPage.getContent());
         model.addAttribute("needTypes", NeedType.values());

@@ -5,44 +5,86 @@
 
     <!-- Flash messages -->
     <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
         <span th:text="${success}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
     </div>
     <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
         <span th:text="${errorMessage}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
     </div>
 
-    <!-- Header & Nút tạo yêu cầu mới -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Section Header & Nút tạo yêu cầu mới -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
         <div>
-            <h3 class="mb-1">Yêu cầu cứu trợ của tôi</h3>
-            <p class="text-muted mb-0">Theo dõi trạng thái và tiến độ các yêu cầu cứu trợ đã gửi</p>
+            <h2 class="app-section-title mb-1">Yêu cầu cứu trợ của tôi</h2>
+            <p class="text-muted mb-0">Theo dõi trạng thái và tiến độ xử lý các yêu cầu cứu trợ đã gửi</p>
         </div>
-        <a th:href="@{/victim/requests/new}" class="btn btn-primary shadow-sm">
-            ➕ Tạo yêu cầu mới
+        <a th:href="@{/victim/requests/new}" class="btn btn-sos btn-pill flex-shrink-0">
+            <i class="bi bi-plus-circle-fill me-1"></i> Tạo yêu cầu mới
         </a>
     </div>
 
-    <!-- Danh sách yêu cầu -->
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <!-- Trường hợp chưa có yêu cầu -->
-            <div th:if="${#lists.isEmpty(requests)}" class="text-center py-5">
-                <p class="text-muted fs-5 mb-3">Bạn chưa có yêu cầu cứu trợ nào.</p>
-                <a th:href="@{/victim/requests/new}" class="btn btn-outline-primary">
-                    Tạo yêu cầu cứu trợ ngay
-                </a>
+    <!-- Hàng thẻ thống kê nhanh -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="app-stat-card app-stat-card--navy">
+                <div class="stat-icon">
+                    <i class="bi bi-clipboard-data"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-num" th:text="${totalRequests ?: 0}">0</div>
+                    <div class="stat-label">Tổng yêu cầu</div>
+                </div>
             </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="app-stat-card app-stat-card--blue">
+                <div class="stat-icon">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-num" th:text="${pendingOrProcessingRequests ?: 0}">0</div>
+                    <div class="stat-label">Đang chờ / Đang xử lý</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="app-stat-card app-stat-card--green">
+                <div class="stat-icon">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-num" th:text="${completedRequests ?: 0}">0</div>
+                    <div class="stat-label">Đã hoàn thành</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <!-- Trường hợp có danh sách yêu cầu -->
-            <div th:unless="${#lists.isEmpty(requests)}" class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+    <!-- Danh sách yêu cầu -->
+    <div th:if="${#lists.isEmpty(requests)}" class="app-card text-center py-5">
+        <div class="mb-3">
+            <i class="bi bi-inbox fs-1 text-muted opacity-75"></i>
+        </div>
+        <h5 class="fw-bold text-navy mb-2">Bạn chưa gửi yêu cầu nào</h5>
+        <p class="text-muted mb-4">Khi gặp khó khăn, hãy gửi thông tin để đội cứu trợ nắm bắt và hỗ trợ kịp thời.</p>
+        <a th:href="@{/victim/requests/new}" class="btn btn-sos btn-pill">
+            <i class="bi bi-plus-circle-fill me-1"></i> Tạo yêu cầu đầu tiên
+        </a>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(requests)}">
+        <!-- Chế độ xem bảng cho màn hình >= 768px -->
+        <div class="app-card p-0 overflow-hidden table-view">
+            <div class="table-responsive">
+                <table class="table victim-table align-middle mb-0">
+                    <thead>
                         <tr>
                             <th scope="col" class="ps-3">Mã #</th>
                             <th scope="col">Địa điểm</th>
-                            <th scope="col">Nhu cầu</th>
+                            <th scope="col">Loại nhu cầu</th>
                             <th scope="col">Số người</th>
                             <th scope="col">Mức độ</th>
                             <th scope="col">Thời gian gửi</th>
@@ -54,22 +96,19 @@
                         <tr th:each="req : ${requests}">
                             <td class="ps-3 fw-bold text-secondary" th:text="'#' + ${req.id}"></td>
                             <td>
-                                <span class="fw-semibold text-dark" th:text="${req.location}"></span>
-                                <div th:if="${req.hasLocation()}" class="small">
-                                    <a th:href="${req.mapUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none small text-primary">
-                                        📍 Bản đồ
+                                <div class="fw-semibold text-dark" th:text="${req.location}"></div>
+                                <div th:if="${req.hasLocation()}" class="mt-1">
+                                    <a th:href="${req.mapUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none small text-primary fw-medium">
+                                        <i class="bi bi-geo-alt me-1"></i>Bản đồ
                                     </a>
                                 </div>
                             </td>
                             <td>
                                 <th:block th:replace="~{fragments/need-badges :: badges(${req.needTypes})}"></th:block>
                             </td>
-                            <td th:text="${req.numberOfPeople} + ' người'"></td>
+                            <td class="fw-medium text-dark" th:text="${req.numberOfPeople} + ' người'"></td>
                             <td>
-                                <span class="badge"
-                                      th:classappend="${req.urgencyLevel.name() == 'CRITICAL' ? 'bg-danger' : (req.urgencyLevel.name() == 'HIGH' ? 'bg-warning text-dark' : 'bg-info text-dark')}"
-                                      th:text="${req.urgencyLevel.label}">
-                                </span>
+                                <th:block th:replace="~{fragments/urgency-badge :: badge(${req.urgencyLevel})}"></th:block>
                             </td>
                             <td class="text-muted small"
                                 th:text="${req.createdAt != null ? #temporals.format(req.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">
@@ -79,13 +118,66 @@
                             </td>
                             <td class="text-end pe-3">
                                 <a th:href="@{/victim/requests/{id}(id=${req.id})}"
-                                   class="btn btn-sm btn-outline-primary">
+                                   class="btn btn-sm btn-outline-primary btn-pill">
                                     Xem chi tiết
                                 </a>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Chế độ xem thẻ cho màn hình nhỏ < 768px -->
+        <div class="mobile-view">
+            <div th:each="req : ${requests}" class="victim-mobile-card">
+                <div class="card-row align-items-center mb-2 pb-2 border-bottom">
+                    <span class="fw-bold text-navy fs-6" th:text="'#' + ${req.id}"></span>
+                    <th:block th:replace="~{fragments/status-badge :: badge(${req.status})}"></th:block>
+                </div>
+
+                <div class="card-row">
+                    <span class="card-label">Địa điểm:</span>
+                    <div class="text-end">
+                        <span class="fw-semibold text-dark" th:text="${req.location}"></span>
+                        <div th:if="${req.hasLocation()}" class="mt-1">
+                            <a th:href="${req.mapUrl}" target="_blank" rel="noopener noreferrer" class="small text-primary text-decoration-none fw-medium">
+                                <i class="bi bi-geo-alt me-1"></i>Bản đồ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-row">
+                    <span class="card-label">Nhu cầu:</span>
+                    <div class="text-end">
+                        <th:block th:replace="~{fragments/need-badges :: badges(${req.needTypes})}"></th:block>
+                    </div>
+                </div>
+
+                <div class="card-row">
+                    <span class="card-label">Số người:</span>
+                    <span class="fw-medium text-dark" th:text="${req.numberOfPeople} + ' người'"></span>
+                </div>
+
+                <div class="card-row">
+                    <span class="card-label">Mức độ:</span>
+                    <div>
+                        <th:block th:replace="~{fragments/urgency-badge :: badge(${req.urgencyLevel})}"></th:block>
+                    </div>
+                </div>
+
+                <div class="card-row">
+                    <span class="card-label">Thời gian:</span>
+                    <span class="text-muted small" th:text="${req.createdAt != null ? #temporals.format(req.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></span>
+                </div>
+
+                <div class="mt-3 pt-2 border-top">
+                    <a th:href="@{/victim/requests/{id}(id=${req.id})}"
+                       class="btn btn-sm btn-outline-primary btn-pill w-100">
+                        Xem chi tiết
+                    </a>
+                </div>
             </div>
         </div>
     </div>

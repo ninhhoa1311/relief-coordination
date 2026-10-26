@@ -2,77 +2,113 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
 
-    <h4 class="mb-4" th:text="${pageTitle}">Hồ sơ cá nhân</h4>
-
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <span th:text="${success}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-
-    <div class="card" style="max-width: 540px;">
-        <div class="card-body">
-
-            <form th:action="@{/profile}" method="post" th:object="${profileForm}">
-
-                <!-- Email (chỉ đọc) -->
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" th:value="${userEmail}" readonly>
+            <!-- Section Title -->
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="app-icon-circle app-icon-circle--blue flex-shrink-0">
+                    <i class="bi bi-person-fill"></i>
                 </div>
-
-                <!-- Họ tên -->
-                <div class="mb-3">
-                    <label class="form-label">Họ tên</label>
-                    <input type="text" class="form-control" th:field="*{fullName}"
-                           th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'">
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                <div>
+                    <h2 class="app-section-title mb-1" th:text="${pageTitle}">Hồ sơ cá nhân</h2>
+                    <p class="text-muted small mb-0">Quản lý thông tin tài khoản và bảo mật mật khẩu</p>
                 </div>
+            </div>
 
-                <!-- Số điện thoại -->
-                <div class="mb-3">
-                    <label class="form-label">Số điện thoại</label>
-                    <input type="text" class="form-control" th:field="*{phoneNumber}"
-                           th:classappend="${#fields.hasErrors('phoneNumber')} ? 'is-invalid'">
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
-                </div>
+            <!-- Flash alerts -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
 
-                <hr>
-                <p class="text-muted small">Để trống cả 3 ô mật khẩu nếu không muốn đổi mật khẩu.</p>
+            <!-- Profile Form Card -->
+            <div class="app-card">
+                <form th:action="@{/profile}" method="post" th:object="${profileForm}">
 
-                <!-- Mật khẩu hiện tại -->
-                <div class="mb-3">
-                    <label class="form-label">Mật khẩu hiện tại</label>
-                    <input type="password" class="form-control" th:field="*{currentPassword}"
-                           th:classappend="${#fields.hasErrors('currentPassword')} ? 'is-invalid'"
-                           autocomplete="current-password">
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}"></div>
-                </div>
+                    <div class="form-section-title mb-3">
+                        <i class="bi bi-card-heading text-primary"></i>
+                        <span>Thông tin liên hệ</span>
+                    </div>
 
-                <!-- Mật khẩu mới -->
-                <div class="mb-3">
-                    <label class="form-label">Mật khẩu mới</label>
-                    <input type="password" class="form-control" th:field="*{newPassword}"
-                           th:classappend="${#fields.hasErrors('newPassword')} ? 'is-invalid'"
-                           autocomplete="new-password">
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}"></div>
-                </div>
+                    <!-- Email (chỉ đọc) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Địa chỉ Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                            <input type="email" class="form-control bg-light" th:value="${userEmail}" readonly>
+                        </div>
+                        <div class="form-text small text-muted">Email dùng để đăng nhập và nhận thông báo, không thể thay đổi.</div>
+                    </div>
 
-                <!-- Xác nhận mật khẩu mới -->
-                <div class="mb-3">
-                    <label class="form-label">Xác nhận mật khẩu mới</label>
-                    <input type="password" class="form-control" th:field="*{confirmNewPassword}"
-                           th:classappend="${#fields.hasErrors('confirmNewPassword')} ? 'is-invalid'"
-                           autocomplete="new-password">
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmNewPassword')}" th:errors="*{confirmNewPassword}"></div>
-                </div>
+                    <!-- Họ tên -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Họ và tên <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                            <input type="text" class="form-control" th:field="*{fullName}"
+                                   th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'"
+                                   placeholder="Nhập họ và tên đầy đủ">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                        </div>
+                    </div>
 
-                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-            </form>
+                    <!-- Số điện thoại -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Số điện thoại <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
+                            <input type="text" class="form-control" th:field="*{phoneNumber}"
+                                   th:classappend="${#fields.hasErrors('phoneNumber')} ? 'is-invalid'"
+                                   placeholder="Ví dụ: 0912345678">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title mb-3 pt-3 border-top">
+                        <i class="bi bi-shield-lock-fill text-warning"></i>
+                        <span>Đổi mật khẩu</span>
+                    </div>
+                    <p class="text-muted small mb-3">Để trống cả 3 ô mật khẩu bên dưới nếu bạn không có nhu cầu đổi mật khẩu.</p>
+
+                    <!-- Mật khẩu hiện tại -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu hiện tại</label>
+                        <input type="password" class="form-control" th:field="*{currentPassword}"
+                               th:classappend="${#fields.hasErrors('currentPassword')} ? 'is-invalid'"
+                               autocomplete="current-password" placeholder="Nhập mật khẩu đang dùng nếu muốn đổi">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}"></div>
+                    </div>
+
+                    <!-- Mật khẩu mới -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu mới</label>
+                        <input type="password" class="form-control" th:field="*{newPassword}"
+                               th:classappend="${#fields.hasErrors('newPassword')} ? 'is-invalid'"
+                               autocomplete="new-password" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}"></div>
+                    </div>
+
+                    <!-- Xác nhận mật khẩu mới -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Xác nhận mật khẩu mới</label>
+                        <input type="password" class="form-control" th:field="*{confirmNewPassword}"
+                               th:classappend="${#fields.hasErrors('confirmNewPassword')} ? 'is-invalid'"
+                               autocomplete="new-password" placeholder="Nhập lại mật khẩu mới">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmNewPassword')}" th:errors="*{confirmNewPassword}"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+                        <button type="submit" class="btn btn-primary btn-pill px-4">
+                            <i class="bi bi-floppy-fill me-1"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
 
         </div>
     </div>
-
 </div>
 </body>
 </html>

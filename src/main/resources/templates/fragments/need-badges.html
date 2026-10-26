@@ -2,14 +2,19 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head></head>
 <body>
-    <!-- Fragment hiển thị các loại nhu cầu dưới dạng các badge nhỏ -->
     <th:block th:fragment="badges(types)">
-        <span th:if="${types != null and !types.isEmpty()}" 
-              th:each="t : ${types}" 
-              class="badge text-bg-secondary me-1" 
-              th:text="${t.label}">Thực phẩm</span>
-        <span th:if="${types == null or types.isEmpty()}" 
-              class="text-muted small">—</span>
+        <th:block th:if="${types != null and !types.isEmpty()}">
+            <span th:each="t : ${types}" class="need-chip-display">
+                <i th:if="${t.name() == 'FOOD'}" class="bi bi-basket2"></i>
+                <i th:if="${t.name() == 'WATER'}" class="bi bi-droplet"></i>
+                <i th:if="${t.name() == 'MEDICAL'}" class="bi bi-heart-pulse"></i>
+                <i th:if="${t.name() == 'SHELTER'}" class="bi bi-house-door"></i>
+                <i th:if="${t.name() == 'RESCUE'}" class="bi bi-life-preserver"></i>
+                <i th:if="${t.name() == 'OTHER'}" class="bi bi-box-seam"></i>
+                <span th:text="${t.label}">Thực phẩm</span>
+            </span>
+        </th:block>
+        <span th:if="${types == null or types.isEmpty()}" class="text-muted small">—</span>
     </th:block>
 </body>
 </html>

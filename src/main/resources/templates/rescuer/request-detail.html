@@ -2,138 +2,252 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="content">
-    <div class="row justify-content-center">
-        <div class="col-md-9 col-lg-8">
 
-            <!-- Flash alerts -->
-            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <span th:text="${success}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <span th:text="${errorMessage}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+    <!-- Flash alerts -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm border-0 mb-4" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+            <span class="fw-medium" th:text="${success}"></span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm border-0 mb-4" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill fs-5 text-danger"></i>
+            <span class="fw-medium" th:text="${errorMessage}"></span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 
-            <!-- Card chi tiết yêu cầu -->
-            <div class="card shadow-sm border-0 mb-4"
-                 th:classappend="${request.victim == null} ? 'border-danger border-2'">
-                <div class="card-header d-flex justify-content-between align-items-center py-3"
-                     th:classappend="${request.victim == null} ? 'bg-danger text-white' : 'bg-light'">
-                    <h4 class="card-title mb-0">
-                        <span th:if="${request.victim == null}">🆘 </span>
-                        Chi tiết yêu cầu cứu trợ
-                        <span th:classappend="${request.victim == null} ? 'text-white' : 'text-primary'"
-                              th:text="'#' + ${request.id}"></span>
-                        <span th:if="${request.victim == null}"
-                              class="badge bg-white text-danger ms-2 fs-6">KHẨN CẤP / SOS</span>
-                    </h4>
-                    <div>
-                        <th:block th:replace="~{fragments/status-badge :: badge(${request.status})}"></th:block>
-                    </div>
-                </div>
-                <!-- Banner thông tin SOS (tên + SĐT) ngay đầu card khi victim = null -->
+    <!-- Header & Back button -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <a th:href="@{/rescuer/home}" class="btn btn-sm btn-outline-secondary btn-pill">
+                    <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+                </a>
+                <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold"
+                      th:text="'Yêu cầu #' + ${request.id}"></span>
+                <span th:if="${request.victim == null}" class="badge bg-danger rounded-pill px-3 py-2 fw-bold">
+                    <i class="bi bi-broadcast me-1"></i>KHẨN CẤP / SOS
+                </span>
+            </div>
+            <h3 class="app-section-title mt-2 mb-0">
+                Chi tiết yêu cầu cứu trợ
+            </h3>
+        </div>
+        <div>
+            <th:block th:replace="~{fragments/status-badge :: badge(${request.status})}"></th:block>
+        </div>
+    </div>
+
+    <!-- Bố cục 2 cột (Desktop) / 1 cột (Mobile) -->
+    <div class="row g-4">
+        <!-- CỘT TRÁI: THÔNG TIN YÊU CẦU CỨU TRỢ -->
+        <div class="col-lg-8">
+            <div class="app-card mb-4"
+                 th:classappend="${request.urgencyLevel.name() == 'CRITICAL'} ? 'rescuer-req-critical' : ''">
+                
+                <h5 class="fw-bold text-navy mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-geo-alt-fill text-danger"></i>
+                    <span>Thông tin hiện trường</span>
+                </h5>
+
+                <!-- Banner SOS nếu là khách -->
                 <div th:if="${request.victim == null}"
-                     class="alert alert-danger m-3 mb-0 d-flex align-items-center gap-3 py-2">
-                    <span class="fw-bold">Người gửi SOS:</span>
-                    <span th:text="${request.guestName}"></span>
+                     class="alert alert-danger d-flex align-items-center justify-content-between p-3 rounded-3 mb-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-broadcast fs-3 text-danger flex-shrink-0"></i>
+                        <div>
+                            <div class="fw-bold text-danger">Yêu cầu SOS khẩn cấp từ khách vãng lai</div>
+                            <div class="small text-danger text-opacity-75">
+                                Người gửi: <span class="fw-bold" th:text="${request.guestName ?: 'Chưa cung cấp tên'}"></span>
+                            </div>
+                        </div>
+                    </div>
                     <a th:if="${request.guestPhone != null}"
                        th:href="'tel:' + ${request.guestPhone}"
-                       th:text="'📞 ' + ${request.guestPhone}"
-                       class="btn btn-sm btn-danger text-white text-decoration-none ms-auto"></a>
+                       class="btn btn-danger btn-pill btn-mobile-touch fw-bold px-3">
+                        <i class="bi bi-telephone-fill me-1"></i>Gọi ngay
+                    </a>
                 </div>
-                <div class="card-body p-4">
-                    <div class="row g-3">
 
-                        <!-- Địa điểm -->
-                        <div class="col-12">
-                            <label class="text-muted small">Địa điểm cần cứu trợ:</label>
+                <div class="row g-3">
+                    <!-- Địa điểm -->
+                    <div class="col-12">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <div class="text-muted small fw-semibold text-uppercase mb-1">Địa điểm cần hỗ trợ</div>
                             <div class="fs-5 fw-bold text-dark" th:text="${request.location}"></div>
-                            <div th:if="${request.hasLocation()}" class="mt-2">
+                            <div th:if="${request.hasLocation()}" class="mt-2 pt-2 border-top d-flex flex-wrap align-items-center gap-2">
                                 <span class="badge text-bg-light border text-secondary"
                                       th:text="'Tọa độ: ' + ${request.latitude} + ', ' + ${request.longitude}"></span>
                                 <a th:href="${request.mapUrl}" target="_blank" rel="noopener noreferrer"
-                                   class="btn btn-sm btn-outline-primary ms-2">
-                                    🗺️ Mở trên Google Maps
+                                   class="btn btn-sm btn-outline-primary btn-pill">
+                                    <i class="bi bi-map-fill me-1"></i>Mở chỉ đường trên Google Maps
                                 </a>
                             </div>
                         </div>
+                    </div>
 
-                        <hr class="my-3">
-
-                        <!-- Loại nhu cầu / Số người / Mức khẩn cấp -->
-                        <div class="col-md-4">
-                            <label class="text-muted small d-block">Loại nhu cầu:</label>
-                            <div>
-                                <th:block th:replace="~{fragments/need-badges :: badges(${request.needTypes})}"></th:block>
-                            </div>
+                    <!-- Mức khẩn cấp, Số người, Nhu cầu -->
+                    <div class="col-sm-4">
+                        <div class="p-3 bg-light rounded-3 border h-100">
+                            <div class="text-muted small fw-semibold text-uppercase mb-1">Mức khẩn cấp</div>
+                            <th:block th:replace="~{fragments/urgency-badge :: badge(${request.urgencyLevel})}"></th:block>
                         </div>
-                        <div class="col-md-4">
-                            <label class="text-muted small">Số người cần cứu trợ:</label>
-                            <div class="fw-semibold fs-6" th:text="${request.numberOfPeople} + ' người'"></div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="text-muted small">Mức độ khẩn cấp:</label>
-                            <div>
-                                <span class="badge fs-6"
-                                      th:classappend="${request.urgencyLevel.name() == 'CRITICAL' ? 'bg-danger' :
-                                                       (request.urgencyLevel.name() == 'HIGH'     ? 'bg-warning text-dark' :
-                                                       (request.urgencyLevel.name() == 'MEDIUM'   ? 'bg-info text-dark' :
-                                                                                                    'bg-secondary'))}"
-                                      th:text="${request.urgencyLevel.label}">
-                                </span>
-                            </div>
-                        </div>
+                    </div>
 
-                        <hr class="my-3">
+                    <div class="col-sm-4">
+                        <div class="p-3 bg-light rounded-3 border h-100">
+                            <div class="text-muted small fw-semibold text-uppercase mb-1">Số người cần cứu</div>
+                            <div class="fs-5 fw-bold text-navy" th:text="${request.numberOfPeople} + ' người'"></div>
+                        </div>
+                    </div>
 
-                        <!-- Mô tả -->
-                        <div class="col-12">
-                            <label class="text-muted small">Mô tả chi tiết:</label>
-                            <div class="p-3 bg-light rounded"
+                    <div class="col-sm-4">
+                        <div class="p-3 bg-light rounded-3 border h-100">
+                            <div class="text-muted small fw-semibold text-uppercase mb-1">Trạng thái</div>
+                            <th:block th:replace="~{fragments/status-badge :: badge(${request.status})}"></th:block>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <div class="text-muted small fw-semibold text-uppercase mb-2">Loại nhu cầu thiết yếu</div>
+                            <th:block th:replace="~{fragments/need-badges :: badges(${request.needTypes})}"></th:block>
+                        </div>
+                    </div>
+
+                    <!-- Mô tả chi tiết -->
+                    <div class="col-12">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <div class="text-muted small fw-semibold text-uppercase mb-2">Mô tả tình huống & Ghi chú</div>
+                            <div class="text-dark" style="white-space: pre-line;"
                                  th:text="${request.description != null && !request.description.isBlank()} ? ${request.description} : 'Không có mô tả bổ sung.'">
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Thời gian -->
-                        <div class="col-md-6 text-muted small">
-                            Thời gian gửi:
-                            <span th:text="${request.createdAt != null ? #temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></span>
-                        </div>
-                        <div class="col-md-6 text-muted small text-md-end">
-                            Cập nhật lần cuối:
-                            <span th:text="${request.updatedAt != null ? #temporals.format(request.updatedAt, 'dd/MM/yyyy HH:mm') : '-'}"></span>
-                        </div>
-
+                    <!-- Mốc thời gian -->
+                    <div class="col-sm-6 text-muted small">
+                        <i class="bi bi-clock me-1"></i>Thời gian gửi:
+                        <strong class="text-dark" th:text="${request.createdAt != null ? #temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></strong>
+                    </div>
+                    <div class="col-sm-6 text-muted small text-sm-end">
+                        <i class="bi bi-arrow-repeat me-1"></i>Cập nhật lần cuối:
+                        <strong class="text-dark" th:text="${request.updatedAt != null ? #temporals.format(request.updatedAt, 'dd/MM/yyyy HH:mm') : '-'}"></strong>
                     </div>
                 </div>
+
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: THÔNG TIN NGƯỜI GỬI & HÀNH ĐỘNG -->
+        <div class="col-lg-4">
+            
+            <!-- Card Người gửi -->
+            <div class="app-card mb-4"
+                 th:classappend="${request.victim == null} ? 'app-card--red' : 'app-card--blue'">
+                
+                <h5 class="fw-bold text-navy mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-person-circle fs-5"
+                       th:classappend="${request.victim == null} ? 'text-danger' : 'text-primary'"></i>
+                    <span>Người gửi yêu cầu</span>
+                </h5>
+
+                <!-- Trường hợp khách SOS (victim == null) -->
+                <div th:if="${request.victim == null}">
+                    <div class="mb-3">
+                        <div class="profile-field-label">Họ và tên (Khách vãng lai)</div>
+                        <div class="fw-bold text-dark fs-6"
+                             th:text="${request.guestName ?: 'Khách vãng lai'}"></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="profile-field-label">Số điện thoại liên lạc</div>
+                        <div th:if="${request.guestPhone != null}">
+                            <a th:href="'tel:' + ${request.guestPhone}"
+                               class="btn btn-outline-danger btn-pill btn-mobile-touch w-100 fw-bold fs-6">
+                                <i class="bi bi-telephone-fill me-2"></i><span th:text="${request.guestPhone}"></span>
+                            </a>
+                        </div>
+                        <div th:if="${request.guestPhone == null}" class="text-muted fst-italic">
+                            Chưa có số điện thoại
+                        </div>
+                    </div>
+                    <div class="alert alert-danger-subtle text-danger small p-2 rounded-3 mb-0">
+                        <i class="bi bi-info-circle me-1"></i>Bà con gửi qua trang khẩn cấp, vui lòng liên hệ trực tiếp qua số điện thoại trên.
+                    </div>
+                </div>
+
+                <!-- Trường hợp nạn nhân có tài khoản (victim != null) -->
+                <div th:if="${request.victim != null}">
+                    <div class="mb-3">
+                        <div class="profile-field-label">Họ và tên</div>
+                        <div class="fw-bold text-dark fs-6" th:text="${request.victim.fullName}"></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="profile-field-label">Số điện thoại liên lạc</div>
+                        <div th:if="${request.victim.phoneNumber != null}">
+                            <a th:href="'tel:' + ${request.victim.phoneNumber}"
+                               class="btn btn-outline-primary btn-pill btn-mobile-touch w-100 fw-bold fs-6">
+                                <i class="bi bi-telephone-fill me-2"></i><span th:text="${request.victim.phoneNumber}"></span>
+                            </a>
+                        </div>
+                        <div th:if="${request.victim.phoneNumber == null}" class="text-muted fst-italic">
+                            Chưa có số điện thoại
+                        </div>
+                    </div>
+                    <div class="mb-0" th:if="${request.victim.email != null}">
+                        <div class="profile-field-label">Email tài khoản</div>
+                        <div class="text-muted small text-truncate" th:text="${request.victim.email}"></div>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Hành động -->
-            <div class="d-flex justify-content-between align-items-center">
-                <a th:href="@{/rescuer/home}" class="btn btn-secondary">
-                    ← Quay lại danh sách
-                </a>
+            <!-- Card Hành động Tiếp nhận -->
+            <div class="app-card">
+                <h5 class="fw-bold text-navy mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-check text-success"></i>
+                    <span>Tiếp nhận cứu trợ</span>
+                </h5>
 
-                <!-- Nút "Nhận nhiệm vụ" CHỈ hiện khi status == SENT -->
-                <th:block th:if="${request.status.name() == 'SENT'}">
+                <!-- Nút "Tiếp nhận yêu cầu" CHỈ hiện khi status == SENT -->
+                <div th:if="${request.status.name() == 'SENT'}">
+                    <p class="text-muted small mb-3">
+                        Khi bấm tiếp nhận, yêu cầu này sẽ được chuyển vào mục <strong>Nhiệm vụ của tôi</strong> để bạn trực tiếp phụ trách và cập nhật tiến độ cứu trợ.
+                    </p>
                     <form th:action="@{/rescuer/requests/{id}/accept(id=${request.id})}"
                           method="post"
-                          onsubmit="return confirm('Bạn có chắc chắn muốn nhận nhiệm vụ cứu trợ này?');">
-                        <button type="submit" class="btn btn-success btn-lg">
-                            ✅ Nhận nhiệm vụ
+                          onsubmit="return confirm('Bạn có chắc chắn muốn tiếp nhận nhiệm vụ cứu trợ này?');">
+                        <button type="submit"
+                                class="btn btn-success btn-pill btn-mobile-touch w-100 py-3 fs-5 fw-bold shadow-sm">
+                            <i class="bi bi-check2-circle me-2"></i>Tiếp nhận yêu cầu
                         </button>
                     </form>
-                </th:block>
+                </div>
 
-                <!-- Thông báo khi đã có người nhận -->
-                <th:block th:unless="${request.status.name() == 'SENT'}">
-                    <span class="text-muted fst-italic">Yêu cầu này đã được tiếp nhận.</span>
-                </th:block>
+                <!-- Thông báo khi đã có người nhận hoặc không phải SENT -->
+                <div th:unless="${request.status.name() == 'SENT'}" class="alert alert-secondary p-3 rounded-3 mb-0">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-info-circle-fill text-secondary fs-5"></i>
+                        <span class="fw-bold text-dark">Đã được tiếp nhận</span>
+                    </div>
+                    <p class="small text-muted mb-0">
+                        Yêu cầu này hiện không còn ở trạng thái chờ tiếp nhận (trạng thái: <strong th:text="${request.status}"></strong>).
+                    </p>
+                </div>
+
+                <div class="mt-3 pt-3 border-top text-center">
+                    <a th:href="@{/rescuer/home}" class="text-muted small text-decoration-none">
+                        <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách yêu cầu chờ
+                    </a>
+                </div>
             </div>
 
         </div>
     </div>
+
 </div>
 </body>
 </html>
