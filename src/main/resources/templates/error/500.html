@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content" class="py-5 d-flex justify-content-center">
+    <div class="app-card text-center shadow-sm" style="max-width: 500px; width: 100%;">
+        <div class="app-icon-circle app-icon-circle--red mx-auto mb-3" style="width: 72px; height: 72px; font-size: 2rem;">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <h1 class="display-5 fw-bold text-danger mb-2">500</h1>
+        <h2 class="h5 fw-bold text-navy mb-2">Lỗi máy chủ nội bộ</h2>
+        <p class="text-muted mb-4">Hệ thống đang gặp sự cố gián đoạn. Vui lòng thử lại sau giây lát hoặc quay về trang chủ.</p>
+        <a th:href="@{/home}" class="btn btn-navy btn-pill px-4">
+            <i class="bi bi-house-door me-1"></i> Về trang chủ
+        </a>
+    </div>
+</div>
+</body>
+</html>

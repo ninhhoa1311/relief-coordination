@@ -1,11 +1,12 @@
 ---
-description: Luật dự án Website điều phối cứu trợ thiên tai — đọc trước khi sửa code
+description: Luật dự án "Cần cứu trợ" — đọc trước khi sửa code
 alwaysApply: true
 ---
 
-# Luật dự án Relief Coordination
+# Luật dự án "Cần cứu trợ" (relief-coordination)
 
 ## Bối cảnh
+- **Tên sản phẩm:** "Cần cứu trợ". Tên kỹ thuật (artifactId, tên repo): `relief-coordination`. Không dùng "Relief Coordination" hay "Cứu trợ thiên tai" làm tên sản phẩm.
 - Đọc `docs/SPEC.md` trước khi làm bất kỳ thay đổi nào. Khi SPEC mâu thuẫn, mục "0. Quyết định đã chốt" được ưu tiên.
 - Stack: Spring Boot 4.1.1, Java 21, Maven, Spring Security 7, Spring Data JPA, Thymeleaf, PostgreSQL (Neon), Bootstrap 5 CDN. Không React/Vue/REST-SPA.
 - Spring Boot 4 mới hơn dữ liệu huấn luyện: đọc `pom.xml` để biết đúng tên dependency, không đoán API Boot 3.
@@ -15,26 +16,70 @@ alwaysApply: true
 - controller → service → repository → model. Controller không chứa logic nghiệp vụ.
 - Mỗi role có controller riêng theo SPEC (Rescuer tách thành `RescuerRequestController` và `RescuerTaskController`). Mức class dùng `@RequestMapping("/role")`; mức method dùng `@GetMapping`/`@PostMapping`.
 - Trang chủ của từng role là `/victim/home`, `/rescuer/home`, `/admin/home`. `HomeController` điều hướng theo role, không tự thêm đường dẫn khác.
-- Mỗi chức năng một Service riêng theo role (ví dụ `VictimRequestService`, `RescuerRequestService`, `RescuerTaskService`, `AdminService`), không gom hết vào một Service lớn.
+- Mỗi chức năng một Service riêng theo role (ví dụ `VictimRequestService`, `RescuerRequestService`, `RescuerTaskService`, `AdminService`). Service dùng chung: `EmergencyService`, `PublicStatsService`, `CurrentUserService`. Không gom hết vào một Service lớn.
 - Form dùng form object/DTO có `@Valid`, không bind thẳng entity vào form.
-- `User` là abstract, không `new User()` trực tiếp.
+- `User` là abstract (`@MappedSuperclass` hoặc `JOINED` — xem code), không `new User()` trực tiếp.
 - Mật khẩu luôn qua `PasswordEncoder` (BCrypt).
 - Code (tên class, biến, method) viết tiếng Anh; chữ hiển thị trên giao diện viết tiếng Việt.
+- Tất cả file văn bản (Java, HTML, SQL, Markdown, properties) lưu **UTF-8 không BOM**.
+
+## Cấu trúc package
+
+```
+src/main/java/com/example/relief_coordination/
+├── config/          # SecurityConfig, DataInitializer, MvcConfig (nếu có)
+├── controller/      # AdminController, VictimController, RescuerRequestController,
+│                    # RescuerTaskController, EmergencyController, AuthController,
+│                    # HomeController, ProfileController, ErrorPageController
+├── controller/form/ # RegisterForm và các form object
+├── dto/             # EmergencyRequestDto, PublicStatsDto, ReliefRequestForm
+├── exception/       # ResourceNotFoundException, GlobalExceptionHandler
+├── model/           # User (abstract), Victim, Rescuer, Admin, ReliefRequest,
+│                    # RequestStatus (enum), NeedType (enum), UrgencyLevel (enum)
+├── repository/      # UserRepository, VictimRepository, RescuerRepository,
+│                    # AdminRepository, ReliefRequestRepository
+├── service/         # AdminService, VictimRequestService, RescuerRequestService,
+│                    # RescuerTaskService, EmergencyService, PublicStatsService,
+│                    # CurrentUserService
+└── util/            # Tiện ích dùng chung (nếu có)
+```
 
 ## Trạng thái yêu cầu
 - Không bao giờ gọi `request.setStatus(...)` trong Service/Controller. Luôn dùng `request.changeStatus(...)` (đã kiểm tra `RequestStatus.canTransitionTo()`). Ngoại lệ duy nhất: `DataInitializer` khi seed dữ liệu.
 - `changeStatus()` chỉ kiểm tra bước đi hợp lệ. Việc kiểm tra ai được chuyển vẫn nằm trong Service.
+- Luồng hợp lệ: `SENT → ACCEPTED → PROCESSING → COMPLETED → CONFIRMED`. Ngoài ra `CANCELLED` có thể đến từ `SENT/ACCEPTED/PROCESSING/COMPLETED` (xem code `RequestStatus.canTransitionTo()`).
 
 ## Phân quyền
 - Kiểm tra cả role và quyền sở hữu dữ liệu trong Service, không chỉ dựa vào URL.
 - Rescuer chỉ cập nhật yêu cầu mình đã nhận. Victim chỉ sửa/hủy yêu cầu của mình khi còn SENT.
 - Rescuer chưa nhận yêu cầu thì không được thấy họ tên và SĐT của Victim.
 
+## Đăng ký tài khoản
+- Victim đăng ký xong có `enabled=true`, đăng nhập ngay được.
+- Rescuer đăng ký xong có `enabled=false`, phải chờ Admin vào trang quản lý tài khoản bấm "Mở khóa" mới đăng nhập được. Sau đăng ký hiển thị thông báo "Đăng ký thành công, tài khoản đang chờ Admin xác minh".
+
+## Trạng thái bổ sung
+- `COMPLETED` có thể chuyển sang `CANCELLED` (chỉ Admin). Tập chuyển đổi: `COMPLETED → Set.of(CONFIRMED, CANCELLED)`.
+- Thống kê Admin gồm **8 thẻ số**: Tổng yêu cầu, Đã gửi (SENT), Đã tiếp nhận (ACCEPTED), Đang xử lý (PROCESSING), Hoàn thành (COMPLETED), Đã xác nhận (CONFIRMED), Đã hủy (CANCELLED), Số người đã nhận được hỗ trợ (tổng numberOfPeople của các yêu cầu CONFIRMED).
+
 ## Giao diện
 - Trang của người đã đăng nhập dùng `fragments/layout.html` qua `th:replace="~{${content} :: content}"`; trang con bọc nội dung trong `<div th:fragment="content">`.
 - Trang công khai (`landing`, `auth/login`, `auth/register`) là trang độc lập, không dùng layout.
 - Muốn thêm link menu, chỉ sửa file `fragments/nav-<role>.html` của role mình. Không sửa `layout.html`.
 - Giữ nguyên `sec:authentication` và `sec:authorize` trong `layout.html` (đang chạy đúng), không "dọn dẹp" hay thay bằng cách khác.
+- Fragment dùng chung (trong `fragments/badges.html` hoặc tương đương): `status-badge`, `urgency-badge`, `need-badges`, `urgency-picker`, `progress-steps`, `back-home`. Tái sử dụng, không tự tạo mới.
+- Màu sắc và biến CSS dùng trong `static/css/app.css`. Không inline style; không đặt màu cứng ngoài file CSS.
+
+## Database và migration
+- Database: PostgreSQL trên Neon. Mỗi Neon branch là một database riêng — migration SQL phải chạy tay trên từng branch.
+- File migration trong `docs/`: `migration-need-types.sql` (chuyển cột need_type sang bảng `relief_request_need_types`, gỡ NOT NULL của victim_id cho SOS). Chạy file migration trước khi dùng branch Neon mới.
+- `AdminService.lockedRescuerIds` là `ConcurrentHashMap` in-memory — mất dữ liệu khi restart server. Đây là thiết kế hiện tại, không thay bằng DB trừ khi được yêu cầu.
+
+## SOS (gửi khẩn cấp không cần đăng nhập)
+- `EmergencyController` xử lý route `/emergency/sos` (GET + POST).
+- `victim_id` trong `ReliefRequest` là nullable — cho phép SOS từ khách vãng lai.
+- SOS tự đặt `urgencyLevel = CRITICAL` và `status = SENT`, dùng `guestName` + `guestPhone` thay thông tin Victim.
+- `EmergencyService` kiểm tra spam: `guestPhone` không được có yêu cầu đang active (chưa CONFIRMED/CANCELLED).
 
 ## Ngoài phạm vi
 - OTP, quên mật khẩu, WebSocket, upload file, biểu đồ, nhúng bản đồ (chỉ dùng link Google Maps).
@@ -47,4 +92,4 @@ alwaysApply: true
 - `ReliefRequestRepository` dùng chung: chỉ thêm method mới ở cuối file, không sửa hay xóa method của người khác.
 
 ## Kiểm tra
-- Sau mỗi thay đổi code, chạy `.\mvnw.cmd -q compile` và báo kết quả.
+- Sau mỗi thay đổi code, chạy `.\mvnw.cmd clean install -DskipTests` và báo kết quả.

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>✅ Đã gửi yêu cầu — Cần cứu trợ</title>
+
+    <!-- Google Fonts: Be Vietnam Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- App Design System -->
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="app-card app-card--green auth-card shadow-lg text-center" style="max-width: 520px;">
+
+        <!-- Biểu tượng thành công -->
+        <div class="app-icon-circle app-icon-circle--green mx-auto mb-3" style="width: 72px; height: 72px; font-size: 2.25rem;">
+            <i class="bi bi-check-lg"></i>
+        </div>
+        <h1 class="h3 fw-bold text-success mb-2">Yêu cầu đã được tiếp nhận!</h1>
+        <p class="text-secondary small mb-3">Hệ thống Cần cứu trợ đã lưu thông tin và phát tín hiệu đến lực lượng ứng cứu</p>
+
+        <!-- Thông báo cảnh báo (gửi trùng) -->
+        <div th:if="${warningMessage}"
+             class="alert alert-warning text-dark mb-3 text-start rounded-3 d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0"></i>
+            <div>
+                <strong>Lưu ý:</strong>
+                <span th:text="${warningMessage}"></span>
+            </div>
+        </div>
+
+        <!-- Thông báo thành công -->
+        <div th:if="${successMessage}"
+             class="alert alert-success text-dark mb-3 text-start rounded-3 d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-check-circle-fill text-success fs-5 flex-shrink-0"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <!-- Hướng dẫn cho người dân -->
+        <div class="p-3 mb-4 rounded-3 text-start" style="background: rgba(22, 163, 74, 0.08); border: 1px solid rgba(22, 163, 74, 0.18);">
+            <p class="mb-2 fw-semibold text-success">
+                <i class="bi bi-telephone-inbound-fill me-1"></i> Lực lượng cứu trợ sẽ gọi cho bạn:
+            </p>
+            <div th:if="${phoneNumber}" class="mb-3 text-center">
+                <a th:href="'tel:' + ${phoneNumber}"
+                   class="badge bg-danger text-white fs-6 py-2 px-3 rounded-pill text-decoration-none">
+                    <i class="bi bi-telephone-fill me-1"></i> <span th:text="${phoneNumber}"></span>
+                </a>
+            </div>
+            <p class="text-danger fw-semibold small mb-1">
+                ⚠️ Vui lòng sạc và giữ điện thoại bên mình liên tục để nhận cuộc gọi.
+            </p>
+            <p class="text-secondary small mb-0">
+                Nếu vị trí nước dâng nguy hiểm, hãy chủ động di chuyển lên nơi cao ráo an toàn hơn.
+            </p>
+        </div>
+
+        <!-- Hành động -->
+        <div class="d-grid gap-2">
+            <a href="/" th:href="@{/}" class="btn btn-navy btn-pill py-2 fw-bold">
+                <i class="bi bi-house-door me-1"></i> Về trang chủ
+            </a>
+            <a th:href="@{/emergency}" class="btn btn-outline-danger btn-pill py-2">
+                <i class="bi bi-plus-circle me-1"></i> Gửi thêm yêu cầu khẩn cấp khác
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

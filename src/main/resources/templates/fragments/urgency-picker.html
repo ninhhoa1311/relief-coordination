@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="picker" class="col-12 mb-3">
+    <label class="form-label fw-bold">Mức độ khẩn cấp <span class="text-danger">*</span></label>
+
+    <div class="row row-cols-1 row-cols-md-2 g-2">
+        <div class="col" th:each="level : ${urgencyLevels}">
+            <input type="radio"
+                   class="btn-check"
+                   th:field="*{urgencyLevel}"
+                   th:value="${level}"
+                   th:id="${'urgency_' + level}"
+                   autocomplete="off">
+            <label class="w-100 h-100 p-3 text-start d-flex flex-column justify-content-center urgency-card"
+                   th:for="${'urgency_' + level}"
+                   th:classappend="${level.name() == 'LOW' ? 'urgency-card--low' :
+                                    (level.name() == 'MEDIUM' ? 'urgency-card--medium' :
+                                    (level.name() == 'HIGH' ? 'urgency-card--high' : 'urgency-card--critical'))}">
+                <span class="urgency-title fs-6" th:text="${level.label}"></span>
+                <span class="urgency-desc mt-1" th:text="${level.moTa}"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('urgencyLevel')}"
+         th:errors="*{urgencyLevel}"></div>
+</div>
+
+</body>
+</html>

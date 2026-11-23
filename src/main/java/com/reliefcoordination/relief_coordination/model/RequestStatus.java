@@ -10,7 +10,7 @@ public enum RequestStatus {
         SENT, Set.of(ACCEPTED, CANCELLED),
         ACCEPTED, Set.of(PROCESSING, CANCELLED),
         PROCESSING, Set.of(COMPLETED, CANCELLED),
-        COMPLETED, Set.of(CONFIRMED),
+        COMPLETED, Set.of(CONFIRMED, CANCELLED),
         CONFIRMED, Set.of(),
         CANCELLED, Set.of()
     );
